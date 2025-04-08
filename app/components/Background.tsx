@@ -20,7 +20,7 @@ export default function Background({slides, playing}: {slides: Slide[], playing:
         }, 10);
 
         return () => clearInterval(interval.current ?? -1);
-    }, [slides]);
+    }, [slides, playing]);
 
     function setSlide(idx: number) {
         while (idx >= slides.length) idx -= slides.length;
@@ -31,7 +31,7 @@ export default function Background({slides, playing}: {slides: Slide[], playing:
 
     const slide = slides[slideIdx.current];
 
-    return <div className="layer flex" ref={ref}>
+    return <div className="layer flex" style={{ zIndex: -10 }} ref={ref}>
         {slide.sections.map((s, i) =>
             <div key={i} style={{
                 transitionProperty: "background-color, width",
