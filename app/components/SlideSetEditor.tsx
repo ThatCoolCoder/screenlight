@@ -51,6 +51,26 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
 }
 
 function SlideEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
+
+
+    return <div className="flex flex-col sm:flex-row sm:gap-5">
+        <Stack gap="xs" justify="center">
+            <Group>
+                <InputLabel>Duration (ms)</InputLabel>
+                <NumberInput w="10ch" value={slide.durationMs} onChange={v => save({...slide, durationMs: Number(v)})}></NumberInput>
+            </Group>
+            <Group>
+                <InputLabel>Transition (ms)</InputLabel>
+                <NumberInput w="10ch" value={slide.transitionDuration} onChange={v => save({...slide, transitionDuration: Number(v)})}></NumberInput>
+            </Group>
+        </Stack>
+        <Fieldset legend="Colors" bg="none" p="xs" className="grow flex justify-center">
+            <SlideSectionsEditor slide={slide} save={save} />
+        </Fieldset>
+    </div>
+}
+
+function SlideSectionsEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
     function updateSection(section: SlideSection, idx: number) {
         save({
             ...slide,
@@ -75,29 +95,17 @@ function SlideEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
         })
     }
 
-    return <Stack gap="xs">
-        <Group>
-            <InputLabel>Duration (ms)</InputLabel>
-            <NumberInput w="10ch" value={slide.durationMs} onChange={v => save({...slide, durationMs: Number(v)})}></NumberInput>
-        </Group>
-        <Group>
-            <InputLabel>Transition (ms)</InputLabel>
-            <NumberInput w="10ch" value={slide.transitionDuration} onChange={v => save({...slide, transitionDuration: Number(v)})}></NumberInput>
-        </Group>
-        <Fieldset legend="Colors" bg="none" p="xs" mr={{base: 0, xs: "auto"}}>
-            <Stack gap={5}>
-                {slide.sections.map((section, idx) => <Group key={idx} gap="xs" >
-                    <ColorInput w="12ch"
-                        value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
-                    <NumberInput w="10ch" suffix="%" min={1} max={100} title="width"
-                        value={section.widthPercent} onChange={v => updateSection({...section, widthPercent: Number(v)}, idx)}></NumberInput>
-                    {slide.sections.length >= 1 && <Button variant="white" c="black" p="xs"
-                        onClick={() => deleteSection(idx)}>
-                        <i className="bi-trash"></i>
-                    </Button>}
-                </Group>)}
-                <Button c="black" variant="white" onClick={addSection}><i className="bi-plus-lg"></i></Button>
-            </Stack>
-        </Fieldset>
+    return <Stack gap={5}>
+        {slide.sections.map((section, idx) => <Group key={idx} gap="xs" >
+            <ColorInput w="12ch"
+                value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
+            <NumberInput w="10ch" suffix="%" min={0} max={100} title="width"
+                value={section.widthPercent} onChange={v => updateSection({...section, widthPercent: Number(v)}, idx)}></NumberInput>
+            {slide.sections.length >= 1 && <Button variant="white" c="black" p="xs"
+                onClick={() => deleteSection(idx)}>
+                <i className="bi-trash"></i>
+            </Button>}
+        </Group>)}
+        <Button c="black" variant="white" onClick={addSection}><i className="bi-plus-lg"></i></Button>
     </Stack>
 }

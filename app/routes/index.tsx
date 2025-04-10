@@ -29,7 +29,7 @@ export default function Index() {
 
 function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     const [playing, setPlaying] = useState(false);
-    const [slideSet, setSlideSet] = useState(settings.val.slideSets[0] ?? black);
+    const [slideSet, setSlideSet] = useState<SlideSet | null>(settings.val.slideSets[0] ?? null);
     const [slideIdx, setSlideIdx] = useState(0);
 
 
@@ -54,7 +54,7 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     return <div className="h-screen text-center flex flex-col justify-end"
         onDoubleClick={onDoubleClick}
         onMouseDown={onMouseDown}>
-        <Background slides={slideSet.slides} playing={playing} slideIdx={slideIdx} setSlideIdx={setSlideIdx} />
+        <Background slides={slideSet?.slides ?? black.slides} playing={playing} slideIdx={slideIdx} setSlideIdx={setSlideIdx} />
 
         <BottomMenu playing={playing} settings={settings}
             slideSet={makeStateBundle(slideSet, setSlideSet)}
