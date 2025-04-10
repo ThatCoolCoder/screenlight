@@ -6,6 +6,7 @@ import type { SlideSet, Slide } from "~/data/Slides";
 
 export default function Index() {
     const [playing, setPlaying] = useState(false);
+    const [slideIdx, setSlideIdx] = useState(0);
 
     // when double click on this (and not children), pause/play
     function onDoubleClick(e: React.MouseEvent) {
@@ -26,7 +27,7 @@ export default function Index() {
     return <div className="h-screen text-center flex flex-col justify-end"
         onDoubleClick={onDoubleClick}
         onMouseDown={onMouseDown}>
-        <Background slides={presets[0].slides} playing={playing} />
+        <Background slides={presets[0].slides} playing={playing} slideIdx={slideIdx} setSlideIdx={setSlideIdx} />
 
         <BottomMenu playing={playing} />
     </div>

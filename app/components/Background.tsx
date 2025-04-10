@@ -1,37 +1,21 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import type { Slide } from "~/data/Slides";
+import type { StateSetter } from "~/data/StateSetter";
 
-export default function Background({slides, playing}: {slides: Slide[], playing: boolean}) {
-    const [, reRender] = useReducer(x => x + 1, 0);
-    
-    // Can't use state for the main effects as we use a setinterval to determine when to re-render and the state stuff in there won't update
-    const ref = useRef<HTMLDivElement>(null);
-    const interval = useRef<NodeJS.Timeout>(null);
-    const timeRemaining = useRef(0);
-    const slideIdx = useRef(0);
+
+export default function Background({slides, playing, slideIdx, setSlideIdx}: {slides: Slide[], playing: boolean, slideIdx: number, setSlideIdx: StateSetter<number>}) {
+    const slide = slides[slideIdx];
 
     useEffect(() => {
-        setSlide(0);
+        if (!playing) return;
 
-        interval.current = setInterval(() => {
-            if (! playing) return;
-            timeRemaining.current -= 10;
-            if (timeRemaining.current <= 0) setSlide(slideIdx.current + 1);
-        }, 10);
+        const t = setTimeout(() => {
+            setSlideIdx((slideIdx + 1) % slides.length);
+        }, slide.durationMs);
+        return () => clearTimeout(t);
+    }, [playing, slides, slideIdx]);
 
-        return () => clearInterval(interval.current ?? -1);
-    }, [slides, playing]);
-
-    function setSlide(idx: number) {
-        while (idx >= slides.length) idx -= slides.length;
-        timeRemaining.current = slides[idx].durationMs;
-        slideIdx.current = idx;
-        reRender();
-    }
-
-    const slide = slides[slideIdx.current];
-
-    return <div className="layer flex" style={{ zIndex: -10 }} ref={ref}>
+    return <div className="layer flex" style={{ zIndex: -10 }}>
         {slide.sections.map((s, i) =>
             <div key={i} style={{
                 transitionProperty: "background-color, width",
