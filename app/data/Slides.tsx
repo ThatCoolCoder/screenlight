@@ -13,3 +13,13 @@ export type SlideSection = {
     color: string,
     widthPercent: number,
 }
+
+export function createBlankSlide(): Slide {
+    return {
+        durationMs: 1000,
+        transitionDuration: 0,
+        sections: [
+            { color: "black", widthPercent: 100 }
+        ]
+    }
+}
