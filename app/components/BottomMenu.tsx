@@ -1,14 +1,14 @@
 import { Fieldset, Group, Menu, Select, Stack, Switch, Title } from "@mantine/core";
-import "./BottomMenu.css";
-import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
+import { useState } from "react";
 import { save, type Settings } from "~/data/Settings";
 import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
-import SlideSetEditor from "./SlideSetEditor";
-import { useRef, useState } from "react";
+import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
+import { deleteIndex, updateIndex } from "~/services/misc";
+import { ourConfirm } from "~/services/popups";
+import "./BottomMenu.css";
 import { EditButton } from "./Overrides/EditButton";
 import { OurTooltip } from "./Overrides/OurTooltip";
-import { ourConfirm } from "~/services/popups";
-import { deleteIndex, updateIndex } from "~/services/misc";
+import SlideSetEditor from "./SlideSetEditor";
 
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
@@ -33,44 +33,11 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx}:
 }
 
 function SettingsEditor({settings, slideSet, editing}: {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, editing: StateBundle<boolean>}) {
-    const origSlideSet = useRef<SlideSet | null>(null);
-
-    function setActive(name: string | null) {
-        const set = settings.val.slideSets.filter(s => s.name == name)[0];
-        if (set == undefined) {
-            slideSet.set(null);
-            return;
-        }
-
-        // clone so we don't save changes to it by default
-        slideSet.set(JSON.parse(JSON.stringify(set)));
-        // origSlideSet
-    }
-
     function setAutoFullscreen(enabled: boolean) {
         const newSettings = {...settings.val, fullscreenOnPlay: enabled}
         settings.set(newSettings);
         save(newSettings);
     }
-
-    // function saveSet() {
-    //     const idx = settings.val.slideSets.findIndex(s => s.name == slideSet.val?.name);
-    //     if (slideSet.val == null || idx == -1) return;
-    //     updateSlideSets(updateIndex(settings.val.slideSets, slideSet.val, idx));
-    // }
-
-    // function revertSet() {
-
-    // }
-
-    // function duplicateSet() {
-    //     if (slideSet.val == null) return;
-    //     updateSlideSets([...settings.val.slideSets, {
-    //         ...slideSet.val,
-    //         name: "Copy of " + slideSet.val.name
-    //     }]);
-    //     setActive("Copy of " + slideSet.val.name);
-    // }
 
     function setSlideSets(val: SlideSet[]) {
         const newSettings = {...settings.val, slideSets: val};
@@ -132,7 +99,6 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
     const slideSetNames = slideSets.val.map(s => s.name);
 
     return <Group gap={3}>
-        {/* <InputLabel fz="h3">Preset &ensp; </InputLabel> */}
         <OurTooltip label="Select preset">
             <Select value={slideSet.val?.name} onChange={v => trySetActive(v)} data={slideSetNames} w="20ch" placeholder="(No presets available)"/>
         </OurTooltip>
