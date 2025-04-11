@@ -6,6 +6,7 @@ import type { StateSetter } from "~/data/StateSetter";
 import { deleteIndex, updateIndex } from "~/services/misc";
 import { EditButton } from "./Overrides/EditButton";
 import { OurTooltip } from "./Overrides/OurTooltip";
+import { BetterNumberInput } from "./Overrides/BetterNumberInput";
 
 export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBundle<SlideSet>, slideIdx: StateBundle<number>}) {
     function addSlide() {
@@ -40,7 +41,9 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
         <Group  pb={4} className="border-b-1 border-white">
             <Text fz="h4">Slides</Text>
             <Group gap={5}>
-                <SegmentedControl data={slideSet.val.slides.map((_, idx) => String(idx + 1))} value={String(slideIdx.val + 1)} onChange={v => slideIdx.set(Number(v) - 1)}/>
+                <SegmentedControl data={slideSet.val.slides.map((_, idx) => String(idx + 1))}
+                    value={String(slideIdx.val + 1)} onChange={v => slideIdx.set(Number(v) - 1)}/>
+
                 <OurTooltip label="Add slide">
                     <EditButton className="h-full m-0" onClick={addSlide}>
                         <i className="bi-plus-lg"></i>
@@ -67,11 +70,11 @@ function SlideEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
         <Stack gap="xs" justify="center">
             <Group>
                 <InputLabel>Duration (ms)</InputLabel>
-                <NumberInput w="10ch" value={slide.durationMs} onChange={v => save({...slide, durationMs: Number(v)})}></NumberInput>
+                <BetterNumberInput w="10ch" value={slide.durationMs} onNumberChange={v => save({...slide, durationMs: v})} />
             </Group>
             <Group>
                 <InputLabel>Transition (ms)</InputLabel>
-                <NumberInput w="10ch" value={slide.transitionDuration} onChange={v => save({...slide, transitionDuration: Number(v)})}></NumberInput>
+                <BetterNumberInput w="10ch" value={slide.transitionDuration} onNumberChange={v => save({...slide, transitionDuration: v})} />
             </Group>
         </Stack>
         <Fieldset legend="Colors" bg="none" p="xs" className="grow flex justify-center">
@@ -114,8 +117,8 @@ function SlideSectionsEditor({slide, save}: {slide: Slide, save: (a: Slide) => v
                 <ColorInput w="12ch" value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
             </OurTooltip>
             <OurTooltip label="Section width">
-                <NumberInput w="10ch" suffix="%" min={0} max={100}
-                    value={section.widthPercent} onChange={v => updateSection({...section, widthPercent: Number(v)}, idx)}></NumberInput>
+                <BetterNumberInput w="10ch" suffix="%" min={0} max={100}
+                    value={section.widthPercent} onNumberChange={v => updateSection({...section, widthPercent: v}, idx)} />
             </OurTooltip>
             {slide.sections.length >= 1 &&
                 <OurTooltip label={deleteSectionBlocked ? "Cannot delete last section" : "Remove section"}>
