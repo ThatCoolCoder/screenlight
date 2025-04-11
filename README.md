@@ -13,3 +13,6 @@ Roadmap:
 - import/export functionality
 - a few more inbuilt presets
 - ability to restore inbuilt presets (or potentially just prevent destroying them)
+- option to delete all user data
+- add screenshot to readme
+- favicon

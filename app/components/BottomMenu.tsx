@@ -1,4 +1,4 @@
-import { Fieldset, Group, Menu, Select, Stack, Switch, Title } from "@mantine/core";
+import { Button, Fieldset, Group, Menu, Select, Stack, Switch, Text, Title } from "@mantine/core";
 import { useState } from "react";
 import { save, type Settings } from "~/data/Settings";
 import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
@@ -9,6 +9,7 @@ import "./BottomMenu.css";
 import { EditButton } from "./Overrides/EditButton";
 import { OurTooltip } from "./Overrides/OurTooltip";
 import SlideSetEditor from "./SlideSetEditor";
+import { modals } from "@mantine/modals";
 
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
@@ -66,14 +67,19 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
         // todo: && check if changed
         if (editing.val && !force) {
             // todo: better ux we need save, dont save and dont do anythign
-            ourConfirm("Currently editing a preset. Do you want to save changes before switching to other preset?",
-                () => {
-                    savePreset();
-                },
-                () => {
-                    revertPreset();
-                }
-            );
+            modals.open({
+                title: "Preset has been edited",
+                size: "lg",
+                children: <>
+                    <Text fz="sm">
+                        The current preset has been modified. Would you like to save your changes before switching preset?
+                    </Text>
+                    <Group mt="auto" justify="end" gap="xs">
+                        <Button onClick={() => { modals.closeAll(); revertPreset() }} variant="outline" color="red">Discard</Button>
+                        <Button onClick={() => { modals.closeAll(); savePreset() }}>Save</Button>
+                    </Group>
+                </>
+            })
             return;
         }
 

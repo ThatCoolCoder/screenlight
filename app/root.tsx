@@ -1,5 +1,6 @@
 import '@mantine/core/styles.css';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 
 import {
   isRouteErrorResponse,
@@ -40,7 +41,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider>
+            <ModalsProvider>
+                {children}
+            </ModalsProvider>
+        </MantineProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

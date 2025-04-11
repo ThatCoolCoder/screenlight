@@ -11,6 +11,7 @@
   "dependencies": {
     "@mantine/core": "^7.17.2",
     "@mantine/hooks": "^7.17.2",
+    "@mantine/modals": "^7.17.4",
     "@react-router/node": "^7.4.0",
     "@react-router/serve": "^7.4.0",
     "isbot": "^5.1.17",
