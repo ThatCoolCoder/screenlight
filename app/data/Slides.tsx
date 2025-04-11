@@ -14,12 +14,19 @@ export type SlideSection = {
     widthPercent: number,
 }
 
+export function createBlankSlideSet(name: string): SlideSet {
+    return {
+        name: name,
+        slides: [createBlankSlide()]
+    }
+}
+
 export function createBlankSlide(): Slide {
     return {
         durationMs: 1000,
         transitionDuration: 0,
         sections: [
-            { color: "black", widthPercent: 100 }
+            { color: "#000", widthPercent: 100 }
         ]
     }
 }

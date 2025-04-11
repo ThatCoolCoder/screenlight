@@ -1,21 +1,27 @@
-import { Button, Fieldset, Grid, Group, InputLabel, MenuLabel, Select, SimpleGrid, Stack, Switch, Text, Title } from "@mantine/core";
+import { Fieldset, Group, Menu, Select, Stack, Switch, Title } from "@mantine/core";
 import "./BottomMenu.css";
-import type { StateBundle } from "~/data/StateBundle";
+import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 import { save, type Settings } from "~/data/Settings";
-import type { SlideSet } from "~/data/Slides";
+import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
 import SlideSetEditor from "./SlideSetEditor";
-import { useRef } from "react";
-import { updateIndex } from "~/services/misc";
+import { useRef, useState } from "react";
+import { EditButton } from "./Overrides/EditButton";
+import { OurTooltip } from "./Overrides/OurTooltip";
+import { ourConfirm } from "~/services/popups";
+import { deleteIndex, updateIndex } from "~/services/misc";
 
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
+
+    const [editing, setEditing] = useState(false);
+
     return <div className={"bottom-menu " + (playing ? "bottom-menu-closed" : "")}>
         <div className="flex flex-row w-screen justify-center">
             <div className="rounded-xl border-1 border-white grow mx-3 mb-3 py-3 px-3 bg-black/10 text-white max-w-250">
                 <Title order={3} className="text-pulse" mb="md">Double click to play/pause</Title>
                 <Stack>
-                    <SettingsEditor settings={settings} slideSet={slideSet} />
-                    {slideSet.val != null && 
+                    <SettingsEditor settings={settings} slideSet={slideSet} editing={makeStateBundle(editing, setEditing)} />
+                    {slideSet.val != null && editing &&
                         <Fieldset bg="none" p="xs">
                             <SlideSetEditor slideSet={slideSet as StateBundle<SlideSet>} slideIdx={slideIdx} />
                         </Fieldset>
@@ -26,7 +32,7 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     </div>
 }
 
-function SettingsEditor({settings, slideSet}: {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>}) {
+function SettingsEditor({settings, slideSet, editing}: {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, editing: StateBundle<boolean>}) {
     const origSlideSet = useRef<SlideSet | null>(null);
 
     function setActive(name: string | null) {
@@ -47,40 +53,171 @@ function SettingsEditor({settings, slideSet}: {settings: StateBundle<Settings>, 
         save(newSettings);
     }
 
-    function updateSlideSets(slideSets: SlideSet[]) {
-        const newSettings = {...settings.val, slideSets: slideSets};
+    // function saveSet() {
+    //     const idx = settings.val.slideSets.findIndex(s => s.name == slideSet.val?.name);
+    //     if (slideSet.val == null || idx == -1) return;
+    //     updateSlideSets(updateIndex(settings.val.slideSets, slideSet.val, idx));
+    // }
+
+    // function revertSet() {
+
+    // }
+
+    // function duplicateSet() {
+    //     if (slideSet.val == null) return;
+    //     updateSlideSets([...settings.val.slideSets, {
+    //         ...slideSet.val,
+    //         name: "Copy of " + slideSet.val.name
+    //     }]);
+    //     setActive("Copy of " + slideSet.val.name);
+    // }
+
+    function setSlideSets(val: SlideSet[]) {
+        const newSettings = {...settings.val, slideSets: val};
         settings.set(newSettings);
         save(newSettings);
     }
 
-    function saveSet() {
-        const idx = settings.val.slideSets.findIndex(s => s.name == slideSet.val?.name);
-        if (slideSet.val == null || idx == -1) return;
-        updateSlideSets(updateIndex(settings.val.slideSets, slideSet.val, idx));
-    }
-
-    function revertSet() {
-
-    }
-
-    function duplicateSet() {
-        if (slideSet.val == null) return;
-        updateSlideSets([...settings.val.slideSets, {
-            ...slideSet.val,
-            name: "Copy of " + slideSet.val.name
-        }]);
-        setActive("Copy of " + slideSet.val.name);
-    }
-
     return <Group justify="center" gap={50}>
-        <Group gap={3}>
-            <InputLabel fz="h3">Preset &ensp; </InputLabel>
-            <Select value={slideSet.val?.name} onChange={v => setActive(v)} data={settings.val.slideSets.map(s => s.name)} w="20ch" />
-            <Button variant="white" color="black" px="xs" onClick={saveSet}><i className="bi bi-floppy"></i></Button>
-            <Button variant="white" color="black" px="xs" onClick={revertSet}><i className="bi bi-arrow-counterclockwise"></i></Button>
-            <Button variant="white" color="black" px="xs" onClick={duplicateSet}><i className="bi bi-copy"></i></Button>
-        </Group>
+        <PresetSelector
+            editing={editing}
+            slideSet={slideSet}
+            slideSets={makeStateBundle(settings.val.slideSets, setSlideSets)} />
         <Switch label="Fullscreen on play" labelPosition="left" checked={settings.val.fullscreenOnPlay} onChange={v => setAutoFullscreen(v.target.checked)} />
 
     </Group>
+}
+
+function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<SlideSet[]>, editing: StateBundle<boolean>}) {
+    function trySetActive(name: string | null, force: boolean = false) {
+        const set = slideSets.val.filter(s => s.name == name)[0];
+        if (set == undefined) {
+            slideSet.set(null);
+            return;
+        }
+
+        // todo: && check if changed
+        if (editing.val && !force) {
+            // todo: better ux we need save, dont save and dont do anythign
+            ourConfirm("Currently editing a preset. Do you want to save changes before switching to other preset?",
+                () => {
+                    savePreset();
+                },
+                () => {
+                    revertPreset();
+                }
+            );
+            return;
+        }
+
+        slideSet.set({...set})
+    }
+
+    function savePreset() {
+        if (slideSet.val == null) return;
+        editing.set(false);
+
+        slideSets.set(updateIndex(slideSets.val, slideSet.val, index));
+    }
+
+    function revertPreset() {
+        if (slideSet.val == null) return;
+        editing.set(false);
+
+        slideSet.set(slideSets.val[index]);
+    }
+
+    const index = slideSets.val.findIndex(s => s.name == slideSet.val?.name);
+
+    const slideSetNames = slideSets.val.map(s => s.name);
+
+    return <Group gap={3}>
+        {/* <InputLabel fz="h3">Preset &ensp; </InputLabel> */}
+        <OurTooltip label="Select preset">
+            <Select value={slideSet.val?.name} onChange={v => trySetActive(v)} data={slideSetNames} w="20ch" placeholder="(No presets available)"/>
+        </OurTooltip>
+        {editing.val ? <>
+            <OurTooltip label="Save changes">
+                <EditButton onClick={savePreset}><i className="bi bi-check2"></i></EditButton>
+            </OurTooltip>
+            <OurTooltip label="Exit without saving">
+                <EditButton onClick={revertPreset}><i className="bi bi-x-lg"></i></EditButton>
+            </OurTooltip>
+        </> : <>
+            <OurTooltip label="Edit">
+                <EditButton onClick={() => editing.set(true)}><i className="bi bi-pencil"></i></EditButton>
+            </OurTooltip>
+            <ThreeDotsMenu slideSets={slideSets} slideSet={slideSet}/>
+        </>}
+    </Group>
+}
+
+function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<SlideSet[]>, slideSet: StateBundle<SlideSet | null>}) {
+    
+    function addPreset() {
+        if (slideSet.val == null) return;
+
+        const newSet = createBlankSlideSet(findAvailableName(findAvailableName("Unnamed preset")));
+        slideSets.set([...slideSets.val, newSet]);
+        slideSet.set(newSet);
+    }
+
+    function renamePreset() {
+        if (slideSet.val == null) return;
+
+        const updated = {...slideSet.val, name: prompt("Enter name") as string};
+        slideSets.set(updateIndex(slideSets.val, updated, index));
+        slideSet.set(updated);
+    }
+
+    function clonePreset() {
+        if (slideSet.val == null) return;
+
+        const newSet = createBlankSlideSet(findAvailableName("Copy of " + slideSet.val.name));
+        slideSets.set([...slideSets.val, newSet]);
+        slideSet.set(newSet);
+    }
+
+    function deletePreset() {
+        if (slideSet.val == null) return;
+
+        slideSets.set(deleteIndex(slideSets.val, index));
+        slideSet.set(null);
+    }
+
+    function findAvailableName(baseName: string) {
+        const usedNames = slideSets.val.map(ss => ss.name);
+
+        if (! usedNames.includes(baseName)) return baseName;
+        let number = 1;
+        while (usedNames.includes(baseName + " " + number)) number ++;
+        return baseName + " " + number;
+    }
+
+    const index = slideSets.val.findIndex(s => s.name == slideSet.val?.name);
+
+    return <Menu shadow="md" trigger="hover" offset={0}>
+        <Menu.Target>
+            <EditButton title="Other options"><i className="bi bi-three-dots-vertical"></i></EditButton>
+        </Menu.Target>
+
+        <Menu.Dropdown>
+            <Menu.Label ml="-5">Manage presets</Menu.Label>
+            <Menu.Item onClick={addPreset} leftSection={<i className="bi bi-plus-lg"></i>}>
+                New preset
+            </Menu.Item>
+
+            <Menu.Item onClick={renamePreset} leftSection={<i className="bi bi-pencil"></i>}>
+                Rename current
+            </Menu.Item>
+
+            <Menu.Item onClick={clonePreset} leftSection={<i className="bi bi-copy"></i>}>
+                Clone current
+            </Menu.Item>
+
+            <Menu.Item onClick={deletePreset} leftSection={<i className="bi bi-trash"></i>}>
+                Delete current
+            </Menu.Item>
+        </Menu.Dropdown>
+    </Menu>
 }

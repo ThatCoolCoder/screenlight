@@ -4,6 +4,8 @@ import { createBlankSlide, type Slide, type SlideSection, type SlideSet } from "
 import type { StateBundle } from "~/data/StateBundle";
 import type { StateSetter } from "~/data/StateSetter";
 import { deleteIndex, updateIndex } from "~/services/misc";
+import { EditButton } from "./Overrides/EditButton";
+import { OurTooltip } from "./Overrides/OurTooltip";
 
 export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBundle<SlideSet>, slideIdx: StateBundle<number>}) {
     function addSlide() {
@@ -21,6 +23,8 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
     }
 
     function deleteSlide() {
+        if (deleteSlideBlocked) return;
+
         slideSet.set({
             ...slideSet.val,
             slides: slideSet.val.slides.filter((_, idx) => idx != slideIdx.val)
@@ -28,19 +32,25 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
         if (slideIdx.val > 0) slideIdx.set(slideIdx.val - 1);
     }
 
-    const slide = slideSet.val.slides[slideIdx.val]
+    const slide = slideSet.val.slides[slideIdx.val];
+
+    const deleteSlideBlocked = slideSet.val.slides.length <= 1;
 
     return <Stack gap={10}>
         <Group  pb={4} className="border-b-1 border-white">
-            <Text fz="h4">Slide</Text>
+            <Text fz="h4">Slides</Text>
             <Group gap={5}>
                 <SegmentedControl data={slideSet.val.slides.map((_, idx) => String(idx + 1))} value={String(slideIdx.val + 1)} onChange={v => slideIdx.set(Number(v) - 1)}/>
-                <Button variant="white" c="black" size="compact" className="h-full m-0" onClick={addSlide} p="xs">
-                    <i className="bi-plus-lg"></i>
-                </Button>
-                <Button variant="white" c="black" className="h-full m-0" onClick={deleteSlide} p="xs">
-                    <i className="bi-trash"></i>
-                </Button>
+                <OurTooltip label="Add slide">
+                    <EditButton className="h-full m-0" onClick={addSlide}>
+                        <i className="bi-plus-lg"></i>
+                    </EditButton>
+                </OurTooltip>
+                <OurTooltip label={deleteSlideBlocked ? "Cannot delete only slide" : "Delete this slide"}>
+                    <EditButton className="h-full m-0" onClick={deleteSlide} disabled={deleteSlideBlocked}>
+                        <i className="bi-trash"></i>
+                    </EditButton>
+                </OurTooltip>
             </Group>
         </Group>
         {slide != undefined && <>
@@ -79,6 +89,7 @@ function SlideSectionsEditor({slide, save}: {slide: Slide, save: (a: Slide) => v
     }
 
     function deleteSection(idx: number) {
+        if (slide.sections.length == 1) return;
         save({
             ...slide,
             sections: deleteIndex(slide.sections, idx)
@@ -95,17 +106,25 @@ function SlideSectionsEditor({slide, save}: {slide: Slide, save: (a: Slide) => v
         })
     }
 
+    const deleteSectionBlocked = slide.sections.length <= 1;
+
     return <Stack gap={5}>
         {slide.sections.map((section, idx) => <Group key={idx} gap="xs" >
-            <ColorInput w="12ch"
-                value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
-            <NumberInput w="10ch" suffix="%" min={0} max={100} title="width"
-                value={section.widthPercent} onChange={v => updateSection({...section, widthPercent: Number(v)}, idx)}></NumberInput>
-            {slide.sections.length >= 1 && <Button variant="white" c="black" p="xs"
-                onClick={() => deleteSection(idx)}>
-                <i className="bi-trash"></i>
-            </Button>}
+            <OurTooltip label="Section color">
+                <ColorInput w="12ch" value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
+            </OurTooltip>
+            <OurTooltip label="Section width">
+                <NumberInput w="10ch" suffix="%" min={0} max={100}
+                    value={section.widthPercent} onChange={v => updateSection({...section, widthPercent: Number(v)}, idx)}></NumberInput>
+            </OurTooltip>
+            {slide.sections.length >= 1 &&
+                <OurTooltip label={deleteSectionBlocked ? "Cannot delete last section" : "Remove section"}>
+                    <EditButton onClick={() => deleteSection(idx)} disabled={deleteSectionBlocked}> <i className="bi-trash"></i></EditButton>
+                </OurTooltip>
+            }
         </Group>)}
-        <Button c="black" variant="white" onClick={addSection}><i className="bi-plus-lg"></i></Button>
+        <OurTooltip label="Add section to this slide">
+            <Button c="black" variant="white" onClick={addSection}><i className="bi-plus-lg"></i></Button>
+        </OurTooltip>
     </Stack>
 }

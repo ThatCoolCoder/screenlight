@@ -6,13 +6,13 @@ export const black: SlideSet = {
         {
             durationMs: 10000,
             transitionDuration: 0,
-            sections: [{ widthPercent: 100, color: "black" }]
+            sections: [{ widthPercent: 100, color: "#000" }]
         }
     ]
 }
 
 export const warning: SlideSet = {
-    name: "Warning",
+    name: "Warning Flash",
     slides: [
         {
             durationMs: 750,
@@ -25,7 +25,7 @@ export const warning: SlideSet = {
             durationMs: 500,
             transitionDuration: 250,
             sections: [
-                { widthPercent: 100, color: "black" },
+                { widthPercent: 100, color: "#000" },
             ]
         }
     ]

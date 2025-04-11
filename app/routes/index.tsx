@@ -6,7 +6,6 @@ import { black } from "~/data/SlideSetPresets";
 import type { SlideSet, Slide } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 import type { StateSetter } from "~/data/StateSetter";
-import { ourConfirm } from "~/services/confirm";
 
 
 export default function Index() {
