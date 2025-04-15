@@ -1,15 +1,15 @@
-import { Button, Fieldset, Group, Menu, Select, Stack, Switch, Text, Title } from "@mantine/core";
+import { Button, Fieldset, Group, Input, Menu, Select, Stack, Switch, Text, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { save, type Settings } from "~/data/Settings";
 import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 import { deleteIndex, updateIndex } from "~/services/misc";
-import { ourConfirm } from "~/services/popups";
 import "./BottomMenu.css";
-import { EditButton } from "./Overrides/EditButton";
-import { OurTooltip } from "./Overrides/OurTooltip";
+import { EditButton } from "./overrides/EditButton";
+import { OurTooltip } from "./overrides/OurTooltip";
 import SlideSetEditor from "./SlideSetEditor";
 import { modals } from "@mantine/modals";
+import ConfirmCancelButtons from "./general/ConfirmCancelButtons";
 
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
@@ -74,10 +74,7 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
                     <Text fz="sm">
                         The current preset has been modified. Would you like to save your changes before switching preset?
                     </Text>
-                    <Group mt="auto" justify="end" gap="xs">
-                        <Button onClick={() => { modals.closeAll(); revertPreset() }} variant="outline" color="red">Discard</Button>
-                        <Button onClick={() => { modals.closeAll(); savePreset() }}>Save</Button>
-                    </Group>
+                    <ConfirmCancelButtons cancelText="Discard" confirmText="Save" confirm={savePreset} cancel={revertPreset} />
                 </>
             })
             return;
@@ -117,7 +114,7 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
             </OurTooltip>
         </> : <>
             <OurTooltip label="Edit">
-                <EditButton onClick={() => editing.set(true)}><i className="bi bi-pencil"></i></EditButton>
+                <EditButton onClick={() => editing.set(true)} disabled={slideSet.val == null}><i className="bi bi-pencil"></i></EditButton>
             </OurTooltip>
             <ThreeDotsMenu slideSets={slideSets} slideSet={slideSet}/>
         </>}
@@ -125,36 +122,56 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
 }
 
 function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<SlideSet[]>, slideSet: StateBundle<SlideSet | null>}) {
-    
     function addPreset() {
-        if (slideSet.val == null) return;
+        function apply(name: string) {
+            const newSet = createBlankSlideSet(name);
+            slideSets.set([...slideSets.val, newSet]);
+            slideSet.set(newSet);
+        }
 
-        const newSet = createBlankSlideSet(findAvailableName(findAvailableName("Unnamed preset")));
-        slideSets.set([...slideSets.val, newSet]);
-        slideSet.set(newSet);
+        modals.open({
+            title: "Create new preset",
+            children: <NewPresetPopup onSave={apply} />
+        })
     }
 
     function renamePreset() {
-        if (slideSet.val == null) return;
+        function apply(name: string) {
+            if (slideSet.val == null) return;
 
-        const updated = {...slideSet.val, name: prompt("Enter name") as string};
-        slideSets.set(updateIndex(slideSets.val, updated, index));
-        slideSet.set(updated);
+            const updated = {...slideSet.val!, name: name};
+            slideSets.set(updateIndex(slideSets.val, updated, index));
+            slideSet.set(updated);
+        }
+
+        modals.open({
+            title: "Rename",
+            children: <RenamePopup onSave={apply} />
+        })
     }
 
     function clonePreset() {
-        if (slideSet.val == null) return;
-
-        const newSet = createBlankSlideSet(findAvailableName("Copy of " + slideSet.val.name));
+        const newSet = createBlankSlideSet(findAvailableName("Copy of " + slideSet.val!.name));
         slideSets.set([...slideSets.val, newSet]);
         slideSet.set(newSet);
     }
 
     function deletePreset() {
-        if (slideSet.val == null) return;
+        function apply() {
+            if (slideSet.val == null) return;
+            slideSets.set(deleteIndex(slideSets.val, index));
+            slideSet.set(null);
+        }
 
-        slideSets.set(deleteIndex(slideSets.val, index));
-        slideSet.set(null);
+        modals.open({
+            title: "Confirm delete",
+            children: <Stack>
+                <Text fz="sm" className="mb-5">
+                    Are you sure you want to delete "{slideSet.val?.name}"?
+                </Text>
+                <ConfirmCancelButtons confirm={apply} />
+            </Stack>
+        })
     }
 
     function findAvailableName(baseName: string) {
@@ -179,17 +196,35 @@ function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<SlideSet[]
                 New preset
             </Menu.Item>
 
-            <Menu.Item onClick={renamePreset} leftSection={<i className="bi bi-pencil"></i>}>
+            <Menu.Item onClick={renamePreset} leftSection={<i className="bi bi-pencil"></i>} disabled={slideSet.val == null}>
                 Rename current
             </Menu.Item>
 
-            <Menu.Item onClick={clonePreset} leftSection={<i className="bi bi-copy"></i>}>
+            <Menu.Item onClick={clonePreset} leftSection={<i className="bi bi-copy"></i>} disabled={slideSet.val == null}>
                 Clone current
             </Menu.Item>
 
-            <Menu.Item onClick={deletePreset} leftSection={<i className="bi bi-trash"></i>}>
+            <Menu.Item onClick={deletePreset} leftSection={<i className="bi bi-trash"></i>} disabled={slideSet.val == null}>
                 Delete current
             </Menu.Item>
         </Menu.Dropdown>
     </Menu>
+}
+
+function RenamePopup({onSave}: {onSave: (a: string) => void}) {
+    const [name, setName] = useState("");
+    
+    return <Stack>
+        <TextInput value={name} onChange={v => setName(v.target.value)} placeholder="Enter new name..."/>
+        <ConfirmCancelButtons confirm={() => onSave(name)} confirmText="Save" cancelText="Cancel" />  
+    </Stack>
+}
+
+function NewPresetPopup({onSave}: {onSave: (a: string) => void}) {
+    const [name, setName] = useState("");
+    
+    return <Stack>
+        <TextInput value={name} onChange={v => setName(v.target.value)} placeholder="Enter preset name..."/>
+        <ConfirmCancelButtons confirm={() => onSave(name)} confirmText="Create" cancelText="Cancel" />  
+    </Stack>
 }

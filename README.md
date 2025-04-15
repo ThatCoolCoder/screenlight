@@ -12,7 +12,9 @@ Roadmap:
 - overhaul confirm dialogs etc
 - import/export functionality
 - a few more inbuilt presets
+- confirm save/delete changes on exit if unsaved (useEffect in editor where it normally checks for changes)
 - ability to restore inbuilt presets (or potentially just prevent destroying them)
 - option to delete all user data
+- validation stuffs
 - add screenshot to readme
 - favicon

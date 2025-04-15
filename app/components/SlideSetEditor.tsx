@@ -2,9 +2,9 @@ import { Button, ColorInput, Fieldset, Group, InputLabel, SegmentedControl, Stac
 import { createBlankSlide, type Slide, type SlideSection, type SlideSet } from "~/data/Slides";
 import type { StateBundle } from "~/data/StateBundle";
 import { deleteIndex, updateIndex } from "~/services/misc";
-import { BetterNumberInput } from "./Overrides/BetterNumberInput";
-import { EditButton } from "./Overrides/EditButton";
-import { OurTooltip } from "./Overrides/OurTooltip";
+import { BetterNumberInput } from "./overrides/BetterNumberInput";
+import { EditButton } from "./overrides/EditButton";
+import { OurTooltip } from "./overrides/OurTooltip";
 
 export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBundle<SlideSet>, slideIdx: StateBundle<number>}) {
     function addSlide() {
