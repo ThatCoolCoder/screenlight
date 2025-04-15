@@ -1,10 +1,12 @@
 import { Button, ColorInput, Fieldset, Group, InputLabel, SegmentedControl, Stack, Text } from "@mantine/core";
+
 import { createBlankSlide, type Slide, type SlideSection, type SlideSet } from "~/data/Slides";
 import type { StateBundle } from "~/data/StateBundle";
 import { deleteIndex, updateIndex } from "~/services/misc";
-import { BetterNumberInput } from "./overrides/BetterNumberInput";
-import { EditButton } from "./overrides/EditButton";
-import { OurTooltip } from "./overrides/OurTooltip";
+
+import { BetterNumberInput } from "~/components/overrides/BetterNumberInput";
+import { EditButton } from "~/components/overrides/EditButton";
+import { OurTooltip } from "~/components/overrides/OurTooltip";
 
 export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBundle<SlideSet>, slideIdx: StateBundle<number>}) {
     function addSlide() {
