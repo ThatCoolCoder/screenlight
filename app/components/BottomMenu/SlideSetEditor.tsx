@@ -16,6 +16,13 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
         });
     }
 
+    function duplicateSlide() {
+        slideSet.set({
+            ...slideSet.val,
+            slides: [...slideSet.val.slides, {...slideSet.val.slides[slideIdx.val]}]
+        })
+    }
+
     function updateSlide(newVal: Slide) {
         slideSet.set({
             ...slideSet.val,
@@ -47,6 +54,11 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
                 <OurTooltip label="Add slide">
                     <EditButton className="h-full m-0" onClick={addSlide}>
                         <i className="bi-plus-lg"></i>
+                    </EditButton>
+                </OurTooltip>
+                <OurTooltip label="Duplicate slide">
+                    <EditButton className="h-full m-0" onClick={duplicateSlide}>
+                        <i className="bi-copy"></i>
                     </EditButton>
                 </OurTooltip>
                 <OurTooltip label={deleteSlideBlocked ? "Cannot delete only slide" : "Delete this slide"}>
