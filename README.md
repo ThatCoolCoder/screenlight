@@ -9,8 +9,8 @@ Built with React/Mantine/Tailwind.
 Roadmap:
 - switch to id-based persistence so that duplicate names do not completely fry the system.
 - make a switch for horizontal or vertical orientation of sections in slides 
-- overhaul confirm dialogs etc
-- import/export functionality
+- overhaul all confirm dialogs etc
+- import/export functionality (probably just copy paste based stuff)
 - a few more inbuilt presets
 - confirm save/delete changes on exit if unsaved (useEffect in editor where it normally checks for changes)
 - ability to restore inbuilt presets (or potentially just prevent destroying them)

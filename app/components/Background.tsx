@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import type { Slide } from "~/data/Slides";
 import type { StateSetter } from "~/data/StateSetter";
 

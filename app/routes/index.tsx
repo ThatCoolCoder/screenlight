@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import Background from "~/components/Background";
-import BottomMenu from "~/components/BottomMenu";
+
 import { forceLoad, load, type Settings } from "~/data/Settings";
 import { black } from "~/data/SlideSetPresets";
 import type { SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 import type { StateSetter } from "~/data/StateSetter";
+
+import Background from "~/components/Background";
+import BottomMenu from "~/components/BottomMenu";
 
 
 export default function Index() {

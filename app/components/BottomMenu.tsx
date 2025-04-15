@@ -1,15 +1,18 @@
-import { Button, Fieldset, Group, Input, Menu, Select, Stack, Switch, Text, TextInput, Title } from "@mantine/core";
+import { Fieldset, Group, Menu, Select, Stack, Switch, Text, TextInput, Title } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { useState } from "react";
+
 import { save, type Settings } from "~/data/Settings";
 import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 import { deleteIndex, updateIndex } from "~/services/misc";
-import "./BottomMenu.css";
+
+import SlideSetEditor from "./SlideSetEditor";
+import ConfirmCancelButtons from "./general/ConfirmCancelButtons";
 import { EditButton } from "./overrides/EditButton";
 import { OurTooltip } from "./overrides/OurTooltip";
-import SlideSetEditor from "./SlideSetEditor";
-import { modals } from "@mantine/modals";
-import ConfirmCancelButtons from "./general/ConfirmCancelButtons";
+
+import "./BottomMenu.css";
 
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
