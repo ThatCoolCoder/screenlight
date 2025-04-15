@@ -20,6 +20,8 @@ import "./BottomMenu.css";
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
 
+    // Menu that pops up from the bottom when paused to configure everything
+
     const [editing, setEditing] = useState(false);
 
     return <div className={"bottom-menu " + (playing ? "bottom-menu-closed" : "")}>

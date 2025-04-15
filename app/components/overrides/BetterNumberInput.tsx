@@ -5,8 +5,9 @@ export interface BetterNumberInputProps extends NumberInputProps {
     onNumberChange: (n: number) => void
 }
 
-// number input that won't return a string sometimes (stupid mantine)
 export function BetterNumberInput(props: BetterNumberInputProps) {
+    // this is a number input that won't return a string sometimes (stupid mantine)
+
     const [stringValue, setStringValue] = useState(String(props.value));
     const prevValue = useRef(props.value);
 

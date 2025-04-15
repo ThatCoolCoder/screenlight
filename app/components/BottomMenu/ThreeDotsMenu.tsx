@@ -10,6 +10,7 @@ import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
 
 export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<SlideSet[]>, slideSet: StateBundle<SlideSet | null>}) {
+    // Menu with 3 dots icon that gives options to manage presets
     // Yes I know i could break this up into more components but it would really just be more boilerplate so this is fine in its own file
 
     function addPreset() {

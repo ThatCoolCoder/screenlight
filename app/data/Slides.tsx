@@ -6,6 +6,7 @@ export type SlideSet = {
 export type Slide = {
     durationMs: number,
     transitionDuration: number,
+    vertical: boolean,
     sections: SlideSection[]
 }
 
@@ -25,6 +26,7 @@ export function createBlankSlide(): Slide {
     return {
         durationMs: 1000,
         transitionDuration: 0,
+        vertical: false,
         sections: [
             { color: "#000", widthPercent: 100 }
         ]

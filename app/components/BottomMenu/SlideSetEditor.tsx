@@ -1,4 +1,4 @@
-import { Button, ColorInput, Fieldset, Group, InputLabel, SegmentedControl, Stack, Text } from "@mantine/core";
+import { Button, ColorInput, Fieldset, Group, InputLabel, SegmentedControl, Select, Stack, Text } from "@mantine/core";
 
 import { createBlankSlide, type Slide, type SlideSection, type SlideSet } from "~/data/Slides";
 import type { StateBundle } from "~/data/StateBundle";
@@ -59,13 +59,10 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
         {slide != undefined && <>
             <SlideEditor slide={slide} save={updateSlide} />
         </>}
-        {/* <Pagination total={slideSet.val.slides.length} value={slideIdx.val + 1} onChange={v => slideIdx.set(v - 1)}/> */}
     </Stack>
 }
 
 function SlideEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
-
-
     return <div className="flex flex-col sm:flex-row sm:gap-5">
         <Stack gap="xs" justify="center">
             <Group>
@@ -75,6 +72,11 @@ function SlideEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
             <Group>
                 <InputLabel>Transition (ms)</InputLabel>
                 <BetterNumberInput w="10ch" value={slide.transitionDuration} onNumberChange={v => save({...slide, transitionDuration: v})} />
+            </Group>
+            <Group>
+                <InputLabel>Direction</InputLabel>
+                <Select data={["vertical", "horizontal"]} value={slide.vertical ? "vertical" : "horizontal"}
+                    onChange={v => save({...slide, vertical: (v == "vertical")}) } />
             </Group>
         </Stack>
         <Fieldset legend="Colors" bg="none" p="xs" className="grow flex justify-center">
@@ -116,7 +118,7 @@ function SlideSectionsEditor({slide, save}: {slide: Slide, save: (a: Slide) => v
             <OurTooltip label="Section color">
                 <ColorInput w="12ch" value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
             </OurTooltip>
-            <OurTooltip label="Section width">
+            <OurTooltip label="Section size">
                 <BetterNumberInput w="10ch" suffix="%" min={0} max={100}
                     value={section.widthPercent} onNumberChange={v => updateSection({...section, widthPercent: v}, idx)} />
             </OurTooltip>

@@ -5,6 +5,8 @@ import type { StateSetter } from "~/data/StateSetter";
 
 
 export default function Background({slides, playing, slideIdx, setSlideIdx}: {slides: Slide[], playing: boolean, slideIdx: number, setSlideIdx: StateSetter<number>}) {
+    // Rendering logic for the actual lighting part of the application
+
     const slide = slides[slideIdx];
 
     useEffect(() => {
@@ -16,14 +18,14 @@ export default function Background({slides, playing, slideIdx, setSlideIdx}: {sl
         return () => clearTimeout(t);
     }, [playing, slides, slideIdx]);
 
-    return <div className="layer flex" style={{ zIndex: -10 }}>
+    return <div className={"layer flex" + (slide.vertical ? " flex-col" : "")} style={{ zIndex: -10 }}>
         {slide.sections.map((s, i) =>
             <div key={i} style={{
-                transitionProperty: "background-color, width",
+                transitionProperty: "background-color, width, height",
                 transitionDuration: slide.transitionDuration / 1000 + "s",
                 transitionTimingFunction: "ease",
 
-                width: s.widthPercent + "%",
+                [slide.vertical ? "height" : "width"]: s.widthPercent + "%",
                 backgroundColor: s.color
             }}></div>
         )}

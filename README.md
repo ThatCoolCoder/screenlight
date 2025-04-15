@@ -7,14 +7,19 @@ The inspiration for creating this project was to be able to send signals to peop
 Built with React/Mantine/Tailwind.
 
 Roadmap:
-- switch to id-based persistence so that duplicate names do not completely fry the system.
-- make a switch for horizontal or vertical orientation of sections in slides 
-- overhaul all confirm dialogs etc
-- import/export functionality (probably just copy paste based stuff)
+- improve resilience of persistence and saving to prevent invalid or duplicate names of presets
+- preset editor:
+    - way to have direct input in color things
+    - explanation for transition
+    - confirm save/delete changes on exit if unsaved (useEffect in editor where it normally checks for changes)
+- advanced options
+    - polish import/export
+    - ability to restore inbuilt presets
+- general
+    - overhaul all confirm dialogs etc
+    - validation stuffs
+- add flag to inbuilt presets to prevent deleting
 - a few more inbuilt presets
-- confirm save/delete changes on exit if unsaved (useEffect in editor where it normally checks for changes)
-- ability to restore inbuilt presets (or potentially just prevent destroying them)
-- option to delete all user data
-- validation stuffs
 - add screenshot to readme
 - favicon
+- deploy
