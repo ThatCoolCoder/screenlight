@@ -12,6 +12,7 @@ Roadmap:
     - way to have direct input in color things
     - explanation for transition
     - confirm save/delete changes on exit if unsaved (useEffect in editor where it normally checks for changes)
+    - allow reordering slide sections (easy) and slides (hard).
 - advanced options
     - polish import/export
     - ability to restore inbuilt presets
