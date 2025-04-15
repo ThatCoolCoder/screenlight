@@ -17,7 +17,7 @@ const defaultSettings: Settings = {
 const localStorageKey = "screenLightSettings.0";
 
 export function load(): Settings | null {
-    if (! (localStorageKey in localStorage)) return cloneDefaultSettings();
+    if (! (localStorageKey in localStorage)) return getDefaultSettings();
 
     try {
         return JSON.parse(localStorage[localStorageKey]);
@@ -29,7 +29,7 @@ export function load(): Settings | null {
 }
 
 export function forceLoad(): Settings {
-    return load() ?? cloneDefaultSettings();
+    return load() ?? getDefaultSettings();
 }
 
 export function save(s: Settings): boolean {
@@ -39,6 +39,6 @@ export function save(s: Settings): boolean {
 }
 
 
-function cloneDefaultSettings() {
+export function getDefaultSettings() {
     return JSON.parse(JSON.stringify(defaultSettings));
 }

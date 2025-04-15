@@ -7,7 +7,7 @@ import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 import type { StateSetter } from "~/data/StateSetter";
 
 import Background from "~/components/Background";
-import BottomMenu from "~/components/BottomMenu";
+import BottomMenu from "~/components/BottomMenu/BottomMenu";
 
 
 export default function Index() {

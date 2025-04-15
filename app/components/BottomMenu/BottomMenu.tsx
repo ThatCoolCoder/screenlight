@@ -1,4 +1,4 @@
-import { Fieldset, Flex, Group, Select, Stack, Switch, Text, Title } from "@mantine/core";
+import { Fieldset, Flex, Group, Modal, Select, Stack, Switch, Text, Title } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 
@@ -10,7 +10,7 @@ import { updateIndex } from "~/services/misc";
 import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
 import { OurTooltip } from "~/components/overrides/OurTooltip";
-import AdvancedSettingsPopup from "~/components/AdvancedSettingsPopup";
+import AdvancedSettings from "~/components/AdvancedSettings";
 
 import SlideSetEditor from "./SlideSetEditor";
 import ThreeDotsMenu from "./ThreeDotsMenu";
@@ -40,6 +40,8 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx}:
 }
 
 function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, editing: StateBundle<boolean>}) {
+    const [settingsOpen, setSettingsOpen] = useState(false);
+
     function setAutoFullscreen(enabled: boolean) {
         const newSettings = {...settings.val, fullscreenOnPlay: enabled}
         settings.set(newSettings);
@@ -53,26 +55,28 @@ function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle
     }
 
     function openAdvancedSettings() {
-        modals.open({
-            title: "Advanced settings",
-            children: <AdvancedSettingsPopup />
-        });
+        setSettingsOpen(true);
     }
 
-    return <Flex justify="center" columnGap="50" rowGap="10" wrap="wrap">
-        <PresetSelector
-            editing={editing}
-            slideSet={slideSet}
-            slideSets={makeStateBundle(settings.val.slideSets, setSlideSets)} />
+    return <>
+        <Flex justify="center" columnGap="50" rowGap="10" wrap="wrap">
+            <PresetSelector
+                editing={editing}
+                slideSet={slideSet}
+                slideSets={makeStateBundle(settings.val.slideSets, setSlideSets)} />
 
-        <Group>
-            <Switch label="Fullscreen on play" labelPosition="left" checked={settings.val.fullscreenOnPlay} onChange={v => setAutoFullscreen(v.target.checked)} />
-            
-            <OurTooltip label="Advanced settings">
-                <EditButton className="ml-2" onClick={openAdvancedSettings}><i className="bi bi-gear"></i></EditButton>
-            </OurTooltip>
-        </Group>
-    </Flex>
+            <Group>
+                <Switch label="Fullscreen on play" labelPosition="left" checked={settings.val.fullscreenOnPlay} onChange={v => setAutoFullscreen(v.target.checked)} />
+                
+                <OurTooltip label="Advanced options">
+                    <EditButton className="ml-2" onClick={openAdvancedSettings}><i className="bi bi-gear"></i></EditButton>
+                </OurTooltip>
+            </Group>
+        </Flex>
+        <Modal opened={settingsOpen} onClose={() => setSettingsOpen(false)} title="Advanced Options" size="xl">
+            <AdvancedSettings settings={settings} />
+        </Modal>
+    </>
 }
 
 function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<SlideSet[]>, editing: StateBundle<boolean>}) {
