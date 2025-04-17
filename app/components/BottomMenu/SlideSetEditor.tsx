@@ -128,7 +128,7 @@ function SlideSectionsEditor({slide, save}: {slide: Slide, save: (a: Slide) => v
     return <Stack gap={5}>
         {slide.sections.map((section, idx) => <Group key={idx} gap="xs" >
             <OurTooltip label="Section color">
-                <ColorInput w="12ch" value={section.color} onChangeEnd={v => updateSection({...section, color: v}, idx)} />
+                <ColorInput w="12ch" value={section.color} onChange={v => updateSection({...section, color: v}, idx)} format="hex" />
             </OurTooltip>
             <OurTooltip label="Section size">
                 <BetterNumberInput w="10ch" suffix="%" min={0} max={100}
