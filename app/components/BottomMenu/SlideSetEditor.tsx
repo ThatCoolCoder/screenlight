@@ -77,19 +77,27 @@ export default function SlideSetEditor({slideSet, slideIdx}: {slideSet: StateBun
 function SlideEditor({slide, save}: {slide: Slide, save: (a: Slide) => void}) {
     return <div className="flex flex-col sm:flex-row sm:gap-5">
         <Stack gap="xs" justify="center">
-            <Group>
-                <InputLabel>Duration (ms)</InputLabel>
-                <BetterNumberInput w="10ch" value={slide.durationMs} onNumberChange={v => save({...slide, durationMs: v})} />
-            </Group>
-            <Group>
-                <InputLabel>Transition (ms)</InputLabel>
-                <BetterNumberInput w="10ch" value={slide.transitionDuration} onNumberChange={v => save({...slide, transitionDuration: v})} />
-            </Group>
-            <Group>
-                <InputLabel>Direction</InputLabel>
-                <Select data={["vertical", "horizontal"]} value={slide.vertical ? "vertical" : "horizontal"}
-                    onChange={v => save({...slide, vertical: (v == "vertical")}) } />
-            </Group>
+            <OurTooltip label="Time before next slide appears">
+                <Group>
+                    <InputLabel>Duration (ms)</InputLabel>
+                    <BetterNumberInput w="10ch" value={slide.durationMs} onNumberChange={v => save({...slide, durationMs: v})} />
+                </Group>
+            </OurTooltip>
+
+            <OurTooltip label="Set to a value above zero for a smooth transition from the previous slide">
+                <Group>
+                    <InputLabel>Transition (ms)</InputLabel>
+                    <BetterNumberInput w="10ch" value={slide.transitionDuration} onNumberChange={v => save({...slide, transitionDuration: v})} />
+                </Group>
+            </OurTooltip>
+
+            <OurTooltip label="Whether colors go from left to right or top to bottom">
+                <Group>
+                    <InputLabel>Direction</InputLabel>
+                    <Select data={["vertical", "horizontal"]} value={slide.vertical ? "vertical" : "horizontal"}
+                        onChange={v => save({...slide, vertical: (v == "vertical")}) } />
+                </Group>
+            </OurTooltip>
         </Stack>
         <Fieldset legend="Colors" bg="none" p="xs" className="grow flex justify-center">
             <SlideSectionsEditor slide={slide} save={save} />
