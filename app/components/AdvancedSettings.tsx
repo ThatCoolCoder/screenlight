@@ -7,6 +7,7 @@ import { Fragment, useState } from "react";
 import { exportSlideSets, importSlideSets } from "~/services/importExport";
 import { useClipboard } from "@mantine/hooks";
 import { type SlideSet } from "~/data/Slides";
+import slideSetManager from "~/services/slideSetManager";
 
 export default function AdvancedSettings({settings}: {settings: StateBundle<Settings>}) {
     // todo: create nice mobile-friendly tabs thing where tabs disappear when you're in the tab then there's a back button
@@ -93,9 +94,12 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
             toAdd.push(options[idx]);
         });
 
+
+        const slideSets = slideSetManager.addUpdate(toAdd, settings.val.slideSets);
+
         const newSettings = {
             ...settings.val,
-            slideSets: [...settings.val.slideSets, ...toAdd]
+            slideSets: slideSets
         };
         settings.set(newSettings);
         save(newSettings);
@@ -124,8 +128,8 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
 }
 
 function ManageDataTab({settings}: {settings: StateBundle<Settings>}) {
-    const totalPresets = settings.val.slideSets.length;
-    const userPresets = settings.val.slideSets.length;
+    const totalPresets = Object.keys(settings.val.slideSets).length;
+    const userPresets = totalPresets;
     const defaultPresets = 0;
 
     function restoreInbuiltPresets() {

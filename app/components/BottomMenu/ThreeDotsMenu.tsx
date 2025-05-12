@@ -8,15 +8,17 @@ import { deleteIndex, updateIndex } from "~/services/misc";
 
 import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
+import type { TSlideSets } from "~/data/Settings";
+import slideSetManager from "~/services/slideSetManager";
 
-export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<SlideSet[]>, slideSet: StateBundle<SlideSet | null>}) {
+export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<TSlideSets>, slideSet: StateBundle<SlideSet | null>}) {
     // Menu with 3 dots icon that gives options to manage presets
     // Yes I know i could break this up into more components but it would really just be more boilerplate so this is fine in its own file
 
     function addPreset() {
         function apply(name: string) {
             const newSet = createBlankSlideSet(name);
-            slideSets.set([...slideSets.val, newSet]);
+            slideSets.set(slideSetManager.add(newSet, slideSets.val));
             slideSet.set(newSet);
         }
 

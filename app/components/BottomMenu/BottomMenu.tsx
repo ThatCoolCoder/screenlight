@@ -2,10 +2,9 @@ import { Fieldset, Flex, Group, Modal, Select, Stack, Switch, Text, Title } from
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 
-import { save, type Settings } from "~/data/Settings";
+import { save, type Settings, type TSlideSets } from "~/data/Settings";
 import { type SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
-import { updateIndex } from "~/services/misc";
 
 import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
@@ -16,6 +15,7 @@ import SlideSetEditor from "./SlideSetEditor";
 import ThreeDotsMenu from "./ThreeDotsMenu";
 
 import "./BottomMenu.css";
+import slideSetManager, { InvalidId } from "~/services/slideSetManager";
 
 export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
@@ -50,7 +50,7 @@ function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle
         save(newSettings);
     }
 
-    function setSlideSets(val: SlideSet[]) {
+    function setSlideSets(val: TSlideSets) {
         const newSettings = {...settings.val, slideSets: val};
         settings.set(newSettings);
         save(newSettings);
@@ -81,10 +81,13 @@ function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle
     </>
 }
 
-function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<SlideSet[]>, editing: StateBundle<boolean>}) {
-    function trySetActive(name: string | null, force: boolean = false) {
-        const set = slideSets.val.filter(s => s.name == name)[0];
-        if (set == undefined) {
+function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<TSlideSets>, editing: StateBundle<boolean>}) {
+    function trySetActive(id: string | null, force: boolean = false) {
+        if (id == null) id = "";
+        
+        const set = slideSetManager.get(id, slideSets.val);
+
+        if (set instanceof InvalidId) {
             slideSet.set(null);
             return;
         }
@@ -105,7 +108,7 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
             return;
         }
 
-        slideSet.set({...set})
+        slideSet.set({...set} as SlideSet)
     }
 
     function savePreset() {
@@ -119,10 +122,10 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
         if (slideSet.val == null) return;
         editing.set(false);
 
-        slideSet.set(slideSets.val[index]);
+        slideSet.set(slideSetManager.get(id, slideSets.val) as SlideSet);
     }
 
-    const index = slideSets.val.findIndex(s => s.name == slideSet.val?.name);
+    const index = slideSetManager.get(iddd);
 
     const slideSetNames = slideSets.val.map(s => s.name);
 

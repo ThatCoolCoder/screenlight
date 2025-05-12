@@ -3,18 +3,20 @@ import * as presets from "./SlideSetPresets";
 
 export type Settings = {
     fullscreenOnPlay: boolean,
-    slideSets: SlideSet[]
+    slideSets: TSlideSets,
 }
+
+export type TSlideSets = Record<string, SlideSet>
 
 const defaultSettings: Settings = {
     fullscreenOnPlay: true,
-    slideSets: [
-        presets.warning,
-        presets.black
-    ]
+    slideSets: {
+        0: presets.warning,
+        1: presets.black
+    }
 }
 
-const localStorageKey = "screenLightSettings.0";
+const localStorageKey = "screenLightSettings.1";
 
 export function load(): Settings | null {
     if (! (localStorageKey in localStorage)) return getDefaultSettings();

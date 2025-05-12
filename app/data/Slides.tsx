@@ -1,5 +1,6 @@
 export type SlideSet = {
     name: string,
+    inbuilt: boolean,
     slides: Slide[]
 }
 
@@ -18,6 +19,7 @@ export type SlideSection = {
 export function createBlankSlideSet(name: string): SlideSet {
     return {
         name: name,
+        inbuilt: false,
         slides: [createBlankSlide()]
     }
 }
