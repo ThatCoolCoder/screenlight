@@ -17,8 +17,13 @@ import ThreeDotsMenu from "./ThreeDotsMenu";
 import "./BottomMenu.css";
 import slideSetManager, { InvalidId } from "~/services/slideSetManager";
 
-export default function BottomMenu({playing, settings, slideSet, slideIdx}:
-    {playing: boolean, settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, slideIdx: StateBundle<number>}) {
+export default function BottomMenu({playing, settings, slideSet, slideIdx, setId}:
+    {   playing: boolean,
+        settings: StateBundle<Settings>,
+        slideSet: StateBundle<SlideSet | null>,
+        slideIdx: StateBundle<number>,
+        setId: StateBundle<string>
+    }) {
 
     // Menu that pops up from the bottom when paused to configure everything
 
@@ -29,7 +34,7 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx}:
             <div className="rounded-xl border-1 border-white grow mx-3 mb-3 py-3 px-3 bg-black/10 text-white max-w-250">
                 <Title order={3} className="text-pulse" mb="md">Double click to play/pause</Title>
                 <Stack>
-                    <BottomMenuContent settings={settings} slideSet={slideSet} editing={makeStateBundle(editing, setEditing)} />
+                    <BottomMenuContent settings={settings} slideSet={slideSet} setId={setId} editing={makeStateBundle(editing, setEditing)} />
                     {slideSet.val != null && editing &&
                         <Fieldset bg="none" p="xs">
                             <SlideSetEditor slideSet={slideSet as StateBundle<SlideSet>} slideIdx={slideIdx} />
@@ -41,7 +46,8 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx}:
     </div>
 }
 
-function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, editing: StateBundle<boolean>}) {
+function BottomMenuContent({settings, slideSet, editing, setId}:
+    {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, editing: StateBundle<boolean>, setId: StateBundle<string>}) {
     const [settingsOpen, setSettingsOpen] = useState(false);
 
     function setAutoFullscreen(enabled: boolean) {
@@ -65,7 +71,8 @@ function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle
             <PresetSelector
                 editing={editing}
                 slideSet={slideSet}
-                slideSets={makeStateBundle(settings.val.slideSets, setSlideSets)} />
+                slideSets={makeStateBundle(settings.val.slideSets, setSlideSets)}
+                setId={setId} />
 
             <Group>
                 <Switch label="Fullscreen on play" labelPosition="left" checked={settings.val.fullscreenOnPlay} onChange={v => setAutoFullscreen(v.target.checked)} />
@@ -81,11 +88,14 @@ function BottomMenuContent({settings, slideSet, editing}: {settings: StateBundle
     </>
 }
 
-function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<TSlideSets>, editing: StateBundle<boolean>}) {
+function PresetSelector({slideSet, slideSets, editing, setId}:
+    {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<TSlideSets>, editing: StateBundle<boolean>, setId: StateBundle<string>}) {
     function trySetActive(id: string | null, force: boolean = false) {
         if (id == null) id = "";
-        
-        const set = slideSetManager.get(id, slideSets.val);
+
+        let set: SlideSet;
+
+        set = slideSetManager.get(id, slideSets.val);
 
         if (set instanceof InvalidId) {
             slideSet.set(null);
@@ -108,30 +118,28 @@ function PresetSelector({slideSet, slideSets, editing}: {slideSet: StateBundle<S
             return;
         }
 
-        slideSet.set({...set} as SlideSet)
+        slideSet.set({...set})
     }
 
     function savePreset() {
         if (slideSet.val == null) return;
         editing.set(false);
 
-        slideSets.set(updateIndex(slideSets.val, slideSet.val, index));
+        slideSetManager.update(setId.val, slideSet.val, slideSets.val);
     }
 
     function revertPreset() {
         if (slideSet.val == null) return;
         editing.set(false);
 
-        slideSet.set(slideSetManager.get(id, slideSets.val) as SlideSet);
+        slideSet.set(slideSetManager.get(setId.val, slideSets.val));
     }
 
-    const index = slideSetManager.get(iddd);
-
-    const slideSetNames = slideSets.val.map(s => s.name);
+    const slideSetLookup = Object.keys(slideSets.val).map(id => ({label: slideSets.val[id].name, value: id}));
 
     return <Group gap={3}>
         <OurTooltip label="Select preset">
-            <Select value={slideSet.val?.name} onChange={v => trySetActive(v)} data={slideSetNames} w="20ch" placeholder="(No presets available)"/>
+            <Select value={slideSet.val?.name} onChange={v => trySetActive(v)} data={slideSetLookup} w="20ch" placeholder="(No presets available)"/>
         </OurTooltip>
         {editing.val ? <>
             <OurTooltip label="Save changes">

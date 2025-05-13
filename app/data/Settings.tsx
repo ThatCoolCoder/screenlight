@@ -2,6 +2,7 @@ import type { SlideSet } from "./Slides";
 import * as presets from "./SlideSetPresets";
 
 export type Settings = {
+    lastUsedId: string,
     fullscreenOnPlay: boolean,
     slideSets: TSlideSets,
 }
@@ -9,6 +10,7 @@ export type Settings = {
 export type TSlideSets = Record<string, SlideSet>
 
 const defaultSettings: Settings = {
+    lastUsedId: "", 
     fullscreenOnPlay: true,
     slideSets: {
         0: presets.warning,
@@ -16,7 +18,7 @@ const defaultSettings: Settings = {
     }
 }
 
-const localStorageKey = "screenLightSettings.1";
+const localStorageKey = "screenLightSettings.2";
 
 export function load(): Settings | null {
     if (! (localStorageKey in localStorage)) return getDefaultSettings();
@@ -25,7 +27,7 @@ export function load(): Settings | null {
         return JSON.parse(localStorage[localStorageKey]);
     }
     catch (e) {
-        console.log("Failed loading settings: " + e)
+        console.log("Failed loading settings: " + e);
         return null;
     }
 }

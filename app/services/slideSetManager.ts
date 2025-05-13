@@ -3,6 +3,7 @@
 import type { TSlideSets } from "~/data/Settings";
 import type { SlideSet } from "~/data/Slides";
 
+export class NoSlideSets extends Error { }
 export class InvalidId extends Error { }
 export class DuplicateName extends Error { }
 export class EmptyName extends Error { }
@@ -16,7 +17,7 @@ function cleanSet(set: SlideSet) {
     }
 }
 
-function findValidId(allSets: TSlideSets): number {
+function findValidId(allSets: TSlideSets): string {
     // come up with a valid id that's not in use already
 
     const keys = Object.keys(allSets);
@@ -24,43 +25,48 @@ function findValidId(allSets: TSlideSets): number {
     let i = 0;
     while (keys.includes(String(i))) i++;
 
-    return i;
+    return String(i);
 }
 
 export default {
-    get(id: string, allSets: TSlideSets): SlideSet | Error {
-        if (! (id in allSets)) return new InvalidId();
+    get(id: string, allSets: TSlideSets): SlideSet {
+        if (! (id in allSets)) throw new InvalidId();
         
         return allSets[id];
     },
 
-    add(set: SlideSet, allSets: TSlideSets): [TSlideSets, SlideSet, string] | Error {
+    getFirst(allSets: TSlideSets): [string, SlideSet] {
+        if (Object.keys(allSets).length == 0) throw new NoSlideSets();
+        const id = Object.keys(allSets)[0];
+        return [id, allSets[id]];
+    },
+
+    add(set: SlideSet, allSets: TSlideSets): [TSlideSets, SlideSet, string] {
         set = cleanSet(set);
 
-        if (set.name == "") return new EmptyName();
-        if (Object.values(allSets).some(set2 => set2.name == set.name)) return new DuplicateName();
+        if (set.name == "") throw new EmptyName();
+        if (Object.values(allSets).some(set2 => set2.name == set.name)) throw new DuplicateName();
 
         const id = findValidId(allSets);
         allSets = {[id]: set, ...allSets};
 
-        return [allSets, set, String(id)];
-
+        return [allSets, set, id];
     },
 
-    update(id: string, set: SlideSet, allSets: TSlideSets): [TSlideSets, SlideSet] | Error {
+    update(id: string, set: SlideSet, allSets: TSlideSets): [TSlideSets, SlideSet] {
         set = cleanSet(set);
 
-        if (! (id in allSets)) return new InvalidId();
-        if (set.name == "") return new EmptyName();
-        if (Object.keys(allSets).some(id2 => allSets[id2].name == set.name && String(id) != id2)) return new DuplicateName();
+        if (! (id in allSets)) throw new InvalidId();
+        if (set.name == "") throw new EmptyName();
+        if (Object.keys(allSets).some(id2 => allSets[id2].name == set.name && id != id2)) throw new DuplicateName();
 
         allSets = {[id]: set, ...allSets};
 
         return [allSets, set];
     },
 
-    delete(id: string, allSets: TSlideSets): TSlideSets | Error {
-        if (! (id in allSets)) return new InvalidId();
+    delete(id: string, allSets: TSlideSets): TSlideSets {
+        if (! (id in allSets)) throw new InvalidId();
 
         const clone = {...allSets};
         delete clone[id];

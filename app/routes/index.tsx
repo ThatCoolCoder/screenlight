@@ -8,6 +8,7 @@ import type { StateSetter } from "~/data/StateSetter";
 
 import Background from "~/components/Background";
 import BottomMenu from "~/components/BottomMenu/BottomMenu";
+import slideSetManager, { InvalidId, NoSlideSets } from "~/services/slideSetManager";
 
 
 export default function Index() {
@@ -30,8 +31,28 @@ export default function Index() {
 
 function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     const [playing, setPlaying] = useState(false);
-    const [slideSet, setSlideSet] = useState<SlideSet | null>(settings.val.slideSets[0] ?? null);
+    const [slideSet, setSlideSet] = useState<SlideSet | null>(null);
+    const [slideSetId, setSlideSetId] = useState<string>(settings.val.lastUsedId);
     const [slideIdx, setSlideIdx] = useState(0);
+
+    useEffect(() => {
+        try {
+            let slideSetVal = slideSetManager.get(slideSetId, settings.val.slideSets);
+            setSlideSet(slideSetVal);
+        } catch (e) {
+            if (! (e instanceof InvalidId)) throw e;
+            
+            try {
+                let [id, val] = slideSetManager.getFirst(settings.val.slideSets);
+                setSlideSetId(id);
+                setSlideSet(val);
+            }
+            catch (e) {
+                if (! (e instanceof NoSlideSets)) throw e;
+                setSlideSetId("");
+            }
+        }
+    }, [])
 
 
     // when double click on this (and not children), pause/play
@@ -59,6 +80,7 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
 
         <BottomMenu playing={playing} settings={settings}
             slideSet={makeStateBundle(slideSet, setSlideSet)}
-            slideIdx={makeStateBundle(slideIdx, setSlideIdx)} />
+            slideIdx={makeStateBundle(slideIdx, setSlideIdx)}
+            setId={makeStateBundle(slideSetId, setSlideSetId)} />
     </div>
 }
