@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { forceLoad, load, type Settings } from "~/data/Settings";
+import { forceLoad, load, type Settings, type TSlideSetName } from "~/data/Settings";
 import { black } from "~/data/SlideSetPresets";
 import type { SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
@@ -8,7 +8,7 @@ import type { StateSetter } from "~/data/StateSetter";
 
 import Background from "~/components/Background";
 import BottomMenu from "~/components/BottomMenu/BottomMenu";
-import slideSetManager, { InvalidId, NoSlideSets } from "~/services/slideSetManager";
+import slideSetManager, { InvalidName, NoSlideSets } from "~/services/slideSetManager";
 
 
 export default function Index() {
@@ -32,24 +32,24 @@ export default function Index() {
 function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     const [playing, setPlaying] = useState(false);
     const [slideSet, setSlideSet] = useState<SlideSet | null>(null);
-    const [slideSetId, setSlideSetId] = useState<string>(settings.val.lastUsedId);
+    const [slideSetName, setSlideSetName] = useState<TSlideSetName>(settings.val.lastUsedSet);
     const [slideIdx, setSlideIdx] = useState(0);
 
     useEffect(() => {
         try {
-            let slideSetVal = slideSetManager.get(slideSetId, settings.val.slideSets);
+            let slideSetVal = slideSetManager.get(slideSetName, settings.val.slideSets);
             setSlideSet(slideSetVal);
         } catch (e) {
-            if (! (e instanceof InvalidId)) throw e;
+            if (! (e instanceof InvalidName)) throw e;
             
             try {
-                let [id, val] = slideSetManager.getFirst(settings.val.slideSets);
-                setSlideSetId(id);
+                let [name, val] = slideSetManager.getFirst(settings.val.slideSets);
+                setSlideSetName(name);
                 setSlideSet(val);
             }
             catch (e) {
                 if (! (e instanceof NoSlideSets)) throw e;
-                setSlideSetId("");
+                setSlideSetName("");
             }
         }
     }, [])
@@ -81,6 +81,6 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
         <BottomMenu playing={playing} settings={settings}
             slideSet={makeStateBundle(slideSet, setSlideSet)}
             slideIdx={makeStateBundle(slideIdx, setSlideIdx)}
-            setId={makeStateBundle(slideSetId, setSlideSetId)} />
+            setName={makeStateBundle(slideSetName, setSlideSetName)} />
     </div>
 }

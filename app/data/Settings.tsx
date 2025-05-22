@@ -2,19 +2,20 @@ import type { SlideSet } from "./Slides";
 import * as presets from "./SlideSetPresets";
 
 export type Settings = {
-    lastUsedId: string,
+    lastUsedSet: string,
     fullscreenOnPlay: boolean,
     slideSets: TSlideSets,
 }
 
-export type TSlideSets = Record<string, SlideSet>
+export type TSlideSetName = string;
+export type TSlideSets = Record<TSlideSetName, SlideSet>
 
 const defaultSettings: Settings = {
-    lastUsedId: "", 
+    lastUsedSet: "", 
     fullscreenOnPlay: true,
     slideSets: {
-        0: presets.warning,
-        1: presets.black
+        "Warning Flash": presets.warning,
+        "Black": presets.black
     }
 }
 

@@ -1,13 +1,11 @@
 import { Button, Checkbox, Group, MultiSelect, Select, Space, Stack, Tabs, Text, TextInput, Textarea, Title } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { getDefaultSettings, save, type Settings } from "~/data/Settings";
+import { getDefaultSettings, save, type Settings, type TSlideSetName, type TSlideSets } from "~/data/Settings";
 import type { StateBundle } from "~/data/StateBundle";
 import ConfirmCancelButtons from "./general/ConfirmCancelButtons";
 import { Fragment, useState } from "react";
 import { exportSlideSets, importSlideSets } from "~/services/importExport";
 import { useClipboard } from "@mantine/hooks";
-import { type SlideSet } from "~/data/Slides";
-import slideSetManager from "~/services/slideSetManager";
 
 export default function AdvancedSettings({settings}: {settings: StateBundle<Settings>}) {
     // todo: create nice mobile-friendly tabs thing where tabs disappear when you're in the tab then there's a back button
@@ -50,11 +48,11 @@ function ExportMenu({settings}: {settings: StateBundle<Settings>}) {
     }
 
     const slideSets = settings.val.slideSets;
-    const exportResult = selected.length > 0 ? exportSlideSets(slideSets.filter(ss => selected.includes(ss.name))) : "";
+    const exportResult = selected.length > 0 ? "" : ""; // todo: get sets and run them thru exporter
 
     return <Stack gap="xs">
         <Title order={5}>Export to text</Title>
-        <MultiSelect value={selected} onChange={v => setSelected(v)} data={slideSets.map(ss => ss.name)} clearable label="Select presets" />
+        <MultiSelect value={selected} onChange={v => setSelected(v)} data={Object.keys(slideSets.val)} clearable label="Select presets" />
 
         <Group>
             <Textarea value={exportResult} onChange={() => {}} className="grow" />
@@ -74,8 +72,8 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
 
     const [state, setState] = useState<State>("prepaste");
     const [pasted, setPasted] = useState(false);
-    const [options, setOptions] = useState<SlideSet[]>([]);
-    const [selected, setSelected] = useState<boolean[]>([]);
+    const [options, setOptions] = useState<TSlideSets>({});
+    const [selected, setSelected] = useState<Record<TSlideSetName, boolean>>({});
 
     function onPaste(text: string) {
         console.log(pasted);
@@ -83,23 +81,21 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
 
         setPasted(false);
         setOptions(importSlideSets(text));
-        setSelected([]);
+        setSelected({});
         setState("selecting");
     }
 
     function completeImport() {
-        const toAdd: SlideSet[] = [];
-        selected.forEach((val, idx) => {
-            if (! val) return;
-            toAdd.push(options[idx]);
+        let allSets = {...settings.val.slideSets};
+        Object.keys(selected).forEach(name => {
+            if (selected[name]) {
+                allSets[name] = options[name];
+            }
         });
-
-
-        const slideSets = slideSetManager.addUpdate(toAdd, settings.val.slideSets);
 
         const newSettings = {
             ...settings.val,
-            slideSets: slideSets
+            slideSets: allSets
         };
         settings.set(newSettings);
         save(newSettings);
@@ -115,14 +111,14 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
         </>}
         {state == "selecting" && <>
             Found {options.length} preset(s)
-            {options.map((o, idx) => <Fragment key={idx}>
-                <Checkbox checked={selected[idx] == true} label={o.name} onChange={e => {
-                    const clone = [...selected];
-                    clone[idx] = e.target.checked;
+            {Object.keys(options).map(name => <Fragment key={name}>
+                <Checkbox checked={selected[name] == true} label={name} onChange={e => {
+                    const clone = {...selected};
+                    clone[name] = e.target.checked;
                     setSelected(clone);
                 }} />
             </Fragment>)}
-            <Button onClick={completeImport}>Import {selected.filter(x => x).length} preset(s) </Button>
+            <Button onClick={completeImport}>Import {Object.values(selected).filter(x => x).length} preset(s) </Button>
         </>}
     </Stack>
 }

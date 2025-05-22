@@ -2,7 +2,7 @@ import { Fieldset, Flex, Group, Modal, Select, Stack, Switch, Text, Title } from
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 
-import { save, type Settings, type TSlideSets } from "~/data/Settings";
+import { save, type Settings, type TSlideSetName, type TSlideSets } from "~/data/Settings";
 import { type SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
 
@@ -15,14 +15,14 @@ import SlideSetEditor from "./SlideSetEditor";
 import ThreeDotsMenu from "./ThreeDotsMenu";
 
 import "./BottomMenu.css";
-import slideSetManager, { InvalidId } from "~/services/slideSetManager";
+import slideSetManager, { InvalidName } from "~/services/slideSetManager";
 
-export default function BottomMenu({playing, settings, slideSet, slideIdx, setId}:
+export default function BottomMenu({playing, settings, slideSet, slideIdx, setName}:
     {   playing: boolean,
         settings: StateBundle<Settings>,
         slideSet: StateBundle<SlideSet | null>,
         slideIdx: StateBundle<number>,
-        setId: StateBundle<string>
+        setName: StateBundle<TSlideSetName>
     }) {
 
     // Menu that pops up from the bottom when paused to configure everything
@@ -34,7 +34,7 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx, setId
             <div className="rounded-xl border-1 border-white grow mx-3 mb-3 py-3 px-3 bg-black/10 text-white max-w-250">
                 <Title order={3} className="text-pulse" mb="md">Double click to play/pause</Title>
                 <Stack>
-                    <BottomMenuContent settings={settings} slideSet={slideSet} setId={setId} editing={makeStateBundle(editing, setEditing)} />
+                    <BottomMenuContent settings={settings} slideSet={slideSet} setName={setName} editing={makeStateBundle(editing, setEditing)} />
                     {slideSet.val != null && editing &&
                         <Fieldset bg="none" p="xs">
                             <SlideSetEditor slideSet={slideSet as StateBundle<SlideSet>} slideIdx={slideIdx} />
@@ -46,8 +46,12 @@ export default function BottomMenu({playing, settings, slideSet, slideIdx, setId
     </div>
 }
 
-function BottomMenuContent({settings, slideSet, editing, setId}:
-    {settings: StateBundle<Settings>, slideSet: StateBundle<SlideSet | null>, editing: StateBundle<boolean>, setId: StateBundle<string>}) {
+function BottomMenuContent({settings, slideSet, editing, setName}:
+    {   settings: StateBundle<Settings>,
+        slideSet: StateBundle<SlideSet | null>,
+        editing: StateBundle<boolean>,
+        setName: StateBundle<TSlideSetName>
+    }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
 
     function setAutoFullscreen(enabled: boolean) {
@@ -72,7 +76,7 @@ function BottomMenuContent({settings, slideSet, editing, setId}:
                 editing={editing}
                 slideSet={slideSet}
                 slideSets={makeStateBundle(settings.val.slideSets, setSlideSets)}
-                setId={setId} />
+                setName={setName} />
 
             <Group>
                 <Switch label="Fullscreen on play" labelPosition="left" checked={settings.val.fullscreenOnPlay} onChange={v => setAutoFullscreen(v.target.checked)} />
@@ -88,16 +92,22 @@ function BottomMenuContent({settings, slideSet, editing, setId}:
     </>
 }
 
-function PresetSelector({slideSet, slideSets, editing, setId}:
-    {slideSet: StateBundle<SlideSet | null>, slideSets: StateBundle<TSlideSets>, editing: StateBundle<boolean>, setId: StateBundle<string>}) {
-    function trySetActive(id: string | null, force: boolean = false) {
-        if (id == null) id = "";
+function PresetSelector({slideSet, slideSets, editing, setName}:
+    {   slideSet: StateBundle<SlideSet | null>,
+        slideSets: StateBundle<TSlideSets>,
+        editing: StateBundle<boolean>,
+        setName: StateBundle<TSlideSetName>
+    }) {
+    function trySetActive(name: string | null, force: boolean = false) {
+        if (name == null) name = "";
 
         let set: SlideSet;
 
-        set = slideSetManager.get(id, slideSets.val);
+        try {
+            set = slideSetManager.get(name, slideSets.val);
+        } catch (e) {
+            if (! (e instanceof InvalidName)) return;
 
-        if (set instanceof InvalidId) {
             slideSet.set(null);
             return;
         }
@@ -118,28 +128,29 @@ function PresetSelector({slideSet, slideSets, editing, setId}:
             return;
         }
 
-        slideSet.set({...set})
+        slideSet.set({...set});
+        setName.set(name);
     }
 
     function savePreset() {
         if (slideSet.val == null) return;
         editing.set(false);
 
-        slideSetManager.update(setId.val, slideSet.val, slideSets.val);
+        slideSetManager.update(setName.val, slideSet.val, slideSets.val);
     }
 
     function revertPreset() {
         if (slideSet.val == null) return;
         editing.set(false);
 
-        slideSet.set(slideSetManager.get(setId.val, slideSets.val));
+        slideSet.set(slideSetManager.get(setName.val, slideSets.val));
     }
 
-    const slideSetLookup = Object.keys(slideSets.val).map(id => ({label: slideSets.val[id].name, value: id}));
+    const slideSetLookup = Object.keys(slideSets.val);
 
     return <Group gap={3}>
         <OurTooltip label="Select preset">
-            <Select value={slideSet.val?.name} onChange={v => trySetActive(v)} data={slideSetLookup} w="20ch" placeholder="(No presets available)"/>
+            <Select value={setName.val} onChange={v => trySetActive(v)} data={slideSetLookup} w="20ch" placeholder="(No presets available)"/>
         </OurTooltip>
         {editing.val ? <>
             <OurTooltip label="Save changes">
@@ -152,7 +163,7 @@ function PresetSelector({slideSet, slideSets, editing, setId}:
             <OurTooltip label="Edit">
                 <EditButton onClick={() => editing.set(true)} disabled={slideSet.val == null}><i className="bi bi-pencil"></i></EditButton>
             </OurTooltip>
-            <ThreeDotsMenu slideSets={slideSets} slideSet={slideSet}/>
+            <ThreeDotsMenu slideSets={slideSets} slideSet={slideSet} setName={setName} />
         </>}
     </Group>
 }

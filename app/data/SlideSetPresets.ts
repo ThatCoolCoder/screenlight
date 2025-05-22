@@ -1,7 +1,6 @@
 import type { SlideSet } from "./Slides";
 
 export const black: SlideSet = {
-    name: "Black",
     inbuilt: true,
     slides: [
         {
@@ -14,7 +13,6 @@ export const black: SlideSet = {
 }
 
 export const warning: SlideSet = {
-    name: "Warning Flash",
     inbuilt: true,
     slides: [
         {

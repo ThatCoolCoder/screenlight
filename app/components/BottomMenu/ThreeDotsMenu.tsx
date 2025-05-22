@@ -4,21 +4,28 @@ import { useState } from "react";
 
 import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
 import type { StateBundle } from "~/data/StateBundle";
-import { deleteIndex, updateIndex } from "~/services/misc";
 
 import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
-import type { TSlideSets } from "~/data/Settings";
+import type { TSlideSetName, TSlideSets } from "~/data/Settings";
 import slideSetManager from "~/services/slideSetManager";
 
-export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBundle<TSlideSets>, slideSet: StateBundle<SlideSet | null>}) {
+export default function ThreeDotsMenu({slideSets, slideSet, setName}:
+    {   slideSets: StateBundle<TSlideSets>,
+        slideSet: StateBundle<SlideSet | null>,
+        setName: StateBundle<TSlideSetName>
+    }) {
     // Menu with 3 dots icon that gives options to manage presets
     // Yes I know i could break this up into more components but it would really just be more boilerplate so this is fine in its own file
 
     function addPreset() {
         function apply(name: string) {
-            const newSet = createBlankSlideSet(name);
-            slideSets.set(slideSetManager.add(newSet, slideSets.val));
+            const newSet = createBlankSlideSet();
+
+            const [newName, updated] = slideSetManager.add(name, newSet, slideSets.val);
+
+            
+            slideSets.set(updated);
             slideSet.set(newSet);
         }
 
@@ -32,9 +39,10 @@ export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBu
         function apply(name: string) {
             if (slideSet.val == null) return;
 
-            const updated = {...slideSet.val!, name: name};
-            slideSets.set(updateIndex(slideSets.val, updated, index));
-            slideSet.set(updated);
+            const [newName, allSets] = slideSetManager.rename(setName.val, name, slideSets.val);
+
+            slideSets.set(allSets);
+            setName.set(newName);
         }
 
         modals.open({
@@ -44,15 +52,18 @@ export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBu
     }
 
     function clonePreset() {
-        const newSet = createBlankSlideSet(findAvailableName("Copy of " + slideSet.val!.name));
-        slideSets.set([...slideSets.val, newSet]);
+        const newSet = {...slideSet.val!};
+        const [name, allSets] = slideSetManager.add(findAvailableName("Copy of " + setName), newSet, slideSets.val);
+
+        slideSets.set(allSets);
         slideSet.set(newSet);
+        setName.set(name);
     }
 
     function deletePreset() {
         function apply() {
             if (slideSet.val == null) return;
-            slideSets.set(deleteIndex(slideSets.val, index));
+            slideSets.set(slideSetManager.delete(setName.val, slideSets.val));
             slideSet.set(null);
         }
 
@@ -60,7 +71,7 @@ export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBu
             title: "Confirm delete",
             children: <Stack>
                 <Text fz="sm" className="mb-5">
-                    Are you sure you want to delete "{slideSet.val?.name}"?
+                    Are you sure you want to delete "{setName.val}"?
                 </Text>
                 <ConfirmCancelButtons confirm={apply} />
             </Stack>
@@ -68,15 +79,13 @@ export default function ThreeDotsMenu({slideSets, slideSet}: {slideSets: StateBu
     }
 
     function findAvailableName(baseName: string) {
-        const usedNames = slideSets.val.map(ss => ss.name);
+        const usedNames = Object.keys(slideSets.val);
 
         if (! usedNames.includes(baseName)) return baseName;
         let number = 1;
         while (usedNames.includes(baseName + " " + number)) number ++;
         return baseName + " " + number;
     }
-
-    const index = slideSets.val.findIndex(s => s.name == slideSet.val?.name);
 
     return <Menu shadow="md" trigger="hover" offset={0}>
         <Menu.Target>
