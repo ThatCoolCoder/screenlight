@@ -6,11 +6,13 @@ import type { SlideSet } from "~/data/Slides";
 export class NoSlideSets extends Error { }
 export class InvalidName extends Error { }
 export class DuplicateName extends Error { }
-export class CannotDelete extends Error { }
+export class CannotModifyInbuilt extends Error { }
 
 function cleanSet(set: SlideSet) {
-    // clean up the set in preparation for persisting
+    // clean/validate the set in preparation for persisting
     // (turns out currently nothing is needed to be done)
+
+    if (set.inbuilt) throw new CannotModifyInbuilt();
 
     return {
         ...set
@@ -63,6 +65,7 @@ export default {
         set = cleanSet(set);
 
         if (! (name in allSets)) throw new InvalidName();
+        if (allSets[name].inbuilt == true) throw new CannotModifyInbuilt();
         
         return {[name]: set, ...allSets};
     },
@@ -70,6 +73,7 @@ export default {
     delete(name: string, allSets: TSlideSets): TSlideSets {
         name = cleanSetName(name);
         if (! (name in allSets)) throw new InvalidName();
+        if (allSets[name].inbuilt == true) throw new CannotModifyInbuilt();
 
         const clone = {...allSets};
         delete clone[name];
