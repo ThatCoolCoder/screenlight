@@ -35,6 +35,11 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     const [slideSetName, setSlideSetName] = useState<TSlideSetName>(settings.val.lastUsedSet);
     const [slideIdx, setSlideIdx] = useState(0);
 
+    function safeSetSlideSet(s: SlideSet | null) {
+        setSlideSet(s);
+        setSlideIdx(0);
+    }
+
     useEffect(() => {
         try {
             let slideSetVal = slideSetManager.get(slideSetName, settings.val.slideSets);
@@ -76,10 +81,10 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     return <div className="h-screen text-center flex flex-col justify-end"
         onDoubleClick={onDoubleClick}
         onMouseDown={onMouseDown}>
-        <Background slides={slideSet?.slides ?? black.slides} playing={playing} slideIdx={slideIdx} setSlideIdx={setSlideIdx} />
+        <Background slides={slideSet?.slides ?? black.slides} playing={playing} slideIdx={makeStateBundle(slideIdx, setSlideIdx)} />
 
         <BottomMenu playing={playing} settings={settings}
-            slideSet={makeStateBundle(slideSet, setSlideSet)}
+            slideSet={makeStateBundle(slideSet, safeSetSlideSet)}
             slideIdx={makeStateBundle(slideIdx, setSlideIdx)}
             setName={makeStateBundle(slideSetName, setSlideSetName)} />
     </div>

@@ -8,7 +8,7 @@ import type { StateBundle } from "~/data/StateBundle";
 import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
 import type { TSlideSetName, TSlideSets } from "~/data/Settings";
-import slideSetManager from "~/services/slideSetManager";
+import slideSetManager, { NoSlideSets } from "~/services/slideSetManager";
 
 export default function ThreeDotsMenu({slideSets, slideSet, setName}:
     {   slideSets: StateBundle<TSlideSets>,
@@ -27,6 +27,7 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
             
             slideSets.set(updated);
             slideSet.set(newSet);
+            setName.set(newName);
         }
 
         modals.open({
@@ -63,8 +64,18 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
     function deletePreset() {
         function apply() {
             if (slideSet.val == null) return;
-            slideSets.set(slideSetManager.delete(setName.val, slideSets.val));
-            slideSet.set(null);
+            const newSlideSets = slideSetManager.delete(setName.val, slideSets.val);
+            slideSets.set(newSlideSets);
+
+            try {
+                let [name, set] = slideSetManager.getFirst(newSlideSets);
+                slideSet.set(set);
+                setName.set(name);
+            } catch (e) {
+                if (! (e instanceof NoSlideSets)) throw e;
+                slideSet.set(null);
+                setName.set("");
+            }
         }
 
         modals.open({

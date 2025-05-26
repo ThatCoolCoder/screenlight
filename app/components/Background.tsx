@@ -1,19 +1,19 @@
 import { useEffect } from "react";
 
 import type { Slide } from "~/data/Slides";
-import type { StateSetter } from "~/data/StateSetter";
+import type { StateBundle } from "~/data/StateBundle";
 
 
-export default function Background({slides, playing, slideIdx, setSlideIdx}: {slides: Slide[], playing: boolean, slideIdx: number, setSlideIdx: StateSetter<number>}) {
+export default function Background({slides, playing, slideIdx}: {slides: Slide[], playing: boolean, slideIdx: StateBundle<number>}) {
     // Rendering logic for the actual lighting part of the application
 
-    const slide = slides[slideIdx];
+    const slide = slides[slideIdx.val];
 
     useEffect(() => {
         if (!playing) return;
 
         const t = setTimeout(() => {
-            setSlideIdx((slideIdx + 1) % slides.length);
+            slideIdx.set((slideIdx.val + 1) % slides.length);
         }, slide.durationMs);
         return () => clearTimeout(t);
     }, [playing, slides, slideIdx]);
