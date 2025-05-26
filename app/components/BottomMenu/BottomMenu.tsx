@@ -81,14 +81,14 @@ function BottomMenuContent({settings, slideSet, editing, setName}:
             <Group>
                 <Switch label="Fullscreen on play" labelPosition="left" checked={settings.val.fullscreenOnPlay} onChange={v => setAutoFullscreen(v.target.checked)} />
                 
-                {/* <OurTooltip label="Advanced options">
+                <OurTooltip label="Advanced options">
                     <EditButton className="ml-2" onClick={openAdvancedSettings}><i className="bi bi-gear"></i></EditButton>
-                </OurTooltip> */}
+                </OurTooltip>
             </Group>
         </Flex>
-        {/* <Modal opened={settingsOpen} onClose={() => setSettingsOpen(false)} title="Advanced Options" size="xl">
+        <Modal opened={settingsOpen} onClose={() => setSettingsOpen(false)} title="Advanced Options" size="xl">
             <AdvancedSettings settings={settings} />
-        </Modal> */}
+        </Modal>
     </>
 }
 

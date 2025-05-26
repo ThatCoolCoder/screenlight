@@ -44,6 +44,6 @@ export function save(s: Settings): boolean {
 }
 
 
-export function getDefaultSettings() {
+export function getDefaultSettings(): Settings {
     return JSON.parse(JSON.stringify(defaultSettings));
 }
