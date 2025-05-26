@@ -21,6 +21,8 @@ Roadmap:
     - validation stuffs (potentially make use of mantine form to avoid reinventing wheel)
     - consider using immer or something idk or just reducers
     - not pass slide around just the name. that seems to be the react way
+    - it forgets last used
+    - clicking on preset that it already is makes it null out but poorly
 - a few more inbuilt presets
 - add screenshot to readme
 - favicon

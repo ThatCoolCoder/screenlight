@@ -32,11 +32,12 @@ export default function Index() {
 function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     const [playing, setPlaying] = useState(false);
     const [slideSet, setSlideSet] = useState<SlideSet | null>(null);
-    const [slideSetName, setSlideSetName] = useState<TSlideSetName>(settings.val.lastUsedSet);
+    const [slideSetName, _setSlideSetName] = useState<TSlideSetName>(settings.val.lastUsedSet);
     const [slideIdx, setSlideIdx] = useState(0);
 
-    function safeSetSlideSet(s: SlideSet | null) {
-        setSlideSet(s);
+    function setSlideSetName(n: TSlideSetName) {
+        _setSlideSetName(n);
+        if (n == slideSetName) return;
         setSlideIdx(0);
     }
 
@@ -84,7 +85,7 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
         <Background slides={slideSet?.slides ?? black.slides} playing={playing} slideIdx={makeStateBundle(slideIdx, setSlideIdx)} />
 
         <BottomMenu playing={playing} settings={settings}
-            slideSet={makeStateBundle(slideSet, safeSetSlideSet)}
+            slideSet={makeStateBundle(slideSet, setSlideSet)}
             slideIdx={makeStateBundle(slideIdx, setSlideIdx)}
             setName={makeStateBundle(slideSetName, setSlideSetName)} />
     </div>

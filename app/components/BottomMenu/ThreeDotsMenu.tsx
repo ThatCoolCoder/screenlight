@@ -9,6 +9,7 @@ import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
 import type { TSlideSetName, TSlideSets } from "~/data/Settings";
 import slideSetManager, { NoSlideSets } from "~/services/slideSetManager";
+import { OurTooltip } from "../overrides/OurTooltip";
 
 export default function ThreeDotsMenu({slideSets, slideSet, setName}:
     {   slideSets: StateBundle<TSlideSets>,
@@ -109,17 +110,21 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
                 New preset
             </Menu.Item>
 
-            <Menu.Item onClick={renamePreset} leftSection={<i className="bi bi-pencil"></i>} disabled={slideSet.val == null}>
-                Rename current
-            </Menu.Item>
+            <OurTooltip label={slideSet.val?.inbuilt ? "Action unavailable for inbuilt preset" : ""}>
+                <Menu.Item onClick={renamePreset} leftSection={<i className="bi bi-pencil"></i>} disabled={slideSet.val == null || slideSet.val.inbuilt}>
+                    Rename current
+                </Menu.Item>
+            </OurTooltip>
 
             <Menu.Item onClick={clonePreset} leftSection={<i className="bi bi-copy"></i>} disabled={slideSet.val == null}>
                 Clone current
             </Menu.Item>
 
-            <Menu.Item onClick={deletePreset} leftSection={<i className="bi bi-trash"></i>} disabled={slideSet.val == null}>
-                Delete current
-            </Menu.Item>
+            <OurTooltip label={slideSet.val?.inbuilt ? "Action unavailable for inbuilt preset" : ""}>
+                <Menu.Item onClick={deletePreset} leftSection={<i className="bi bi-trash"></i>} disabled={slideSet.val == null || slideSet.val.inbuilt}>
+                    Delete current
+                </Menu.Item>
+            </OurTooltip>
         </Menu.Dropdown>
     </Menu>
 }
