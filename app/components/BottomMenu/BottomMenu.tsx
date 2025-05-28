@@ -61,7 +61,7 @@ function BottomMenuContent({settings, slideSet, editing, setName}:
     }
 
     function setSlideSets(val: TSlideSets) {
-        const newSettings = {...settings.val, slideSets: val};
+        const newSettings = {...settings.val, slideSets: {...val}};
         settings.set(newSettings);
         save(newSettings);
     }
@@ -136,7 +136,7 @@ function PresetSelector({slideSet, slideSets, editing, setName}:
     function savePreset() {
         if (slideSet.val == null) return;
         editing.set(false);
-
+   
         slideSets.set(slideSetManager.update(setName.val, slideSet.val, slideSets.val));
     }
 
@@ -161,9 +161,7 @@ function PresetSelector({slideSet, slideSets, editing, setName}:
                 <EditButton onClick={revertPreset}><i className="bi bi-x-lg"></i></EditButton>
             </OurTooltip>
         </> : <>
-            <OurTooltip label={slideSet.val?.inbuilt ? "Cannot modify inbuilt preset - clone this if you wish to modify" : "Edit"}>
-                <EditButton onClick={() => editing.set(true)} disabled={slideSet.val == null || slideSet.val.inbuilt}><i className="bi bi-pencil"></i></EditButton>
-            </OurTooltip>
+            <EditButton onClick={() => editing.set(true)} disabled={slideSet.val == null}><i className="bi bi-pencil"></i></EditButton>
             <ThreeDotsMenu slideSets={slideSets} slideSet={slideSet} setName={setName} />
         </>}
     </Group>

@@ -44,7 +44,7 @@ export default {
         if (name == "") throw new InvalidName();
         if (name in allSets) throw new DuplicateName();
 
-        return [name, {[name]: set, ...allSets}];
+        return [name, {...allSets, [name]: set}];
     },
 
     rename(name: TSlideSetName, newName: TSlideSetName, allSets: TSlideSets): [TSlideSetName, TSlideSets] {
@@ -64,7 +64,7 @@ export default {
 
         if (! (name in allSets)) throw new InvalidName();
         
-        return {[name]: set, ...allSets};
+        return {...allSets, [name]: set};
     },
 
     delete(name: string, allSets: TSlideSets): TSlideSets {

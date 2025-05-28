@@ -39,8 +39,8 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
         if (n == slideSetName) return;
         
         const nextSettings = {...settings.val, lastUsedSet: n};
-        settings.set(nextSettings);
-        save(nextSettings);
+        // settings.set(nextSettings);
+        // save(nextSettings);
 
         _setSlideSetName(n);
         setSlideIdx(0);

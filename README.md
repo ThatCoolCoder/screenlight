@@ -14,13 +14,13 @@ Roadmap:
     - current one
     - have 2 layers and alternate opacity (wouldn't be that hard, just need to keep track of previous in Background)
 - advanced options
-    - polish import/export
     - ability to restore inbuilt presets
 - general
     - overhaul all confirm dialogs etc
     - validation stuffs (potentially make use of mantine form to avoid reinventing wheel)
     - consider using immer or something idk or just reducers
     - not pass slide around just the name. that seems to be the react way
+    - persistence of last used causes it to not save changes due to having multiple settings values floating around (switch to zustand?)
 - a few more inbuilt presets
 - add screenshot to readme
 - favicon
