@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { forceLoad, load, type Settings, type TSlideSetName } from "~/data/Settings";
+import { forceLoad, load, save, type Settings, type TSlideSetName } from "~/data/Settings";
 import { black } from "~/data/SlideSetPresets";
 import type { SlideSet } from "~/data/Slides";
 import { makeStateBundle, type StateBundle } from "~/data/StateBundle";
@@ -37,7 +37,11 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
 
     function setSlideSetName(n: TSlideSetName) {
         if (n == slideSetName) return;
-        console.log(n);
+        
+        const nextSettings = {...settings.val, lastUsedSet: n};
+        settings.set(nextSettings);
+        save(nextSettings);
+
         _setSlideSetName(n);
         setSlideIdx(0);
     }
