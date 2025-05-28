@@ -119,6 +119,13 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
         setError("");
     }
 
+    function reset() {
+        setState("prepaste");
+        setError("");
+    }
+
+    const selectedCount = Object.values(selected).filter(x => x).length;
+
     return <Stack gap="xs">
         <Title order={5}>Import from text</Title>
         {state == "prepaste" && <>
@@ -126,15 +133,23 @@ function ImportMenu({settings}: {settings: StateBundle<Settings>}) {
             <Text c="red">{error}</Text>
         </>}
         {state == "selecting" && <>
-            Select presets to import:
-            {Object.keys(options).map(name => <Fragment key={name}>
+            {Object.keys(options).length} presets found. Select those you want to import:
+            {Object.keys(options).map(name => <div className="flex gap-4 ml-2" key={name}>
                 <Checkbox checked={selected[name] == true} label={name} onChange={e => {
                     const clone = {...selected};
                     clone[name] = e.target.checked;
                     setSelected(clone);
                 }} />
-            </Fragment>)}
-            <Button onClick={completeImport}>Import {Object.values(selected).filter(x => x).length} preset(s) </Button>
+                {name in settings.val.slideSets && <Text c="red">
+                    <i className="bi-exclamation-triangle"></i> Importing will overwrite an existing preset with this name.
+                </Text>}
+            </div>)}
+            <div className="flex gap-2">
+                <Button variant="transparent" onClick={reset} px={0}>
+                    <span className="align-middle"> <i className="bi-chevron-left mr-2"></i>Back</span>
+                </Button>
+                <Button className="flex-grow" onClick={completeImport} disabled={selectedCount == 0}>Import {selectedCount} preset(s) </Button>
+            </div>
         </>}
     </Stack>
 }
