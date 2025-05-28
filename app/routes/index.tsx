@@ -36,8 +36,9 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
     const [slideIdx, setSlideIdx] = useState(0);
 
     function setSlideSetName(n: TSlideSetName) {
-        _setSlideSetName(n);
         if (n == slideSetName) return;
+        console.log(n);
+        _setSlideSetName(n);
         setSlideIdx(0);
     }
 

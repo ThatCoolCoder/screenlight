@@ -99,7 +99,7 @@ function PresetSelector({slideSet, slideSets, editing, setName}:
         setName: StateBundle<TSlideSetName>
     }) {
     function trySetActive(name: string | null, force: boolean = false) {
-        if (name == null) name = "";
+        if (name == null) return;
 
         let set: SlideSet;
 
