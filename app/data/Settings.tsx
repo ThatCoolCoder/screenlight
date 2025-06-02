@@ -15,7 +15,8 @@ const defaultSettings: Settings = {
     fullscreenOnPlay: true,
     slideSets: {
         "Warning Flash": presets.warning,
-        "Black": presets.black
+        "Black": presets.black,
+        "Rainbow": presets.rainbow
     }
 }
 

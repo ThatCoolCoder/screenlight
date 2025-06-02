@@ -13,8 +13,6 @@ Roadmap:
 - potentially an option to have 2 types of transition:
     - current one
     - have 2 layers and alternate opacity (wouldn't be that hard, just need to keep track of previous in Background)
-- advanced options
-    - ability to restore inbuilt presets
 - general
     - consider using immer or something idk or just reducers
     - not pass slide around just the name. that seems to be the react way

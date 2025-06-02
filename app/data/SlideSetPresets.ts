@@ -33,3 +33,92 @@ export const warning: SlideSet = {
         }
     ]
 }
+
+const rainbowDuration = 250;
+const rainbowTransition = 500;
+
+export const rainbow: SlideSet = {
+    inbuilt: true,
+    slides: [
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#f00"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#f90"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#cf0"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#3f0"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#0f6"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#0ff"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#06f"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#30f"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#c0f"},
+            ]
+        },
+        {
+            durationMs: rainbowDuration,
+            transitionDuration: rainbowTransition,
+            vertical: false,
+            sections: [
+                {widthPercent: 100, color: "#f09"},
+            ]
+        }
+    ]
+}
