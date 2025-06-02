@@ -16,6 +16,7 @@ const defaultSettings: Settings = {
     slideSets: {
         "Warning Flash": presets.warning,
         "Black": presets.black,
+        "Black and White": presets.blackAndWhite,
         "Rainbow": presets.rainbow
     }
 }

@@ -34,6 +34,28 @@ export const warning: SlideSet = {
     ]
 }
 
+export const blackAndWhite: SlideSet = {
+    inbuilt: true,
+    slides: [
+        {
+            durationMs: 750,
+            transitionDuration: 250,
+            vertical: false,
+            sections: [
+                { widthPercent: 100, color: "#000" },
+            ]
+        },
+        {
+            durationMs: 750,
+            transitionDuration: 250,
+            vertical: false,
+            sections: [
+                { widthPercent: 100, color: "#fff" },
+            ]
+        }
+    ]
+}
+
 const rainbowDuration = 250;
 const rainbowTransition = 500;
 
