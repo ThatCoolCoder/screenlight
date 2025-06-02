@@ -1,4 +1,4 @@
-import { Fieldset, Flex, Group, Modal, Select, Stack, Switch, Text, Title } from "@mantine/core";
+import { Button, Fieldset, Flex, Group, Modal, Select, Stack, Switch, Text, Title } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { useState } from "react";
 
@@ -113,9 +113,26 @@ function PresetSelector({slideSet, slideSets, editing, setName}:
             return;
         }
 
+        function cancel() {
+            modals.closeAll();
+        }
+
+        function discard() {
+            editing.set(false); // no need to revert changes because we undo 90% of the stuff from there in the following lines
+            slideSet.set({...set});
+            setName.set(name!);
+            modals.closeAll();
+        }
+
+        function save() {
+            savePreset();
+            slideSet.set({...set});
+            setName.set(name!);
+            modals.closeAll();
+        }
+
         // todo: && check if changed
         if (editing.val && !force) {
-            // todo: better ux we need save, dont save and dont do anythign
             modals.open({
                 title: "Preset has been edited",
                 size: "lg",
@@ -123,14 +140,20 @@ function PresetSelector({slideSet, slideSets, editing, setName}:
                     <Text fz="sm">
                         The current preset has been modified. Would you like to save your changes before switching preset?
                     </Text>
-                    <ConfirmCancelButtons cancelText="Discard" confirmText="Save" confirm={savePreset} cancel={revertPreset} />
+                    <Group mt="auto" justify="end" gap="xs">
+                        <Button onClick={cancel} variant="outline">Cancel</Button>
+                        <Button onClick={discard} variant="outline" color="red">Discard changes</Button>
+                        <Button onClick={save}>Save changes</Button>
+                    </Group>
                 </>
             })
             return;
         }
 
-        slideSet.set({...set});
-        setName.set(name);
+        else {
+            slideSet.set({...set});
+            setName.set(name);
+        }
     }
 
     function savePreset() {

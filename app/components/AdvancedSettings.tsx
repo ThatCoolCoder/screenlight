@@ -3,17 +3,19 @@ import { modals } from "@mantine/modals";
 import { getDefaultSettings, save, type Settings, type TSlideSetName, type TSlideSets } from "~/data/Settings";
 import type { StateBundle } from "~/data/StateBundle";
 import ConfirmCancelButtons from "./general/ConfirmCancelButtons";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { exportSlideSets, importSlideSets } from "~/services/importExport";
 import { useClipboard } from "@mantine/hooks";
 import { OurTooltip } from "./overrides/OurTooltip";
 
-export default function AdvancedSettings({settings}: {settings: StateBundle<Settings>}) {
+export type TabNames = "importexport" | "managedata";
+
+export default function AdvancedSettings({settings, defaultTab = "importexport"}: {settings: StateBundle<Settings>, defaultTab?: TabNames}) {
     // todo: create nice mobile-friendly tabs thing where tabs disappear when you're in the tab then there's a back button
 
     const isSmallScreen = document.body.clientWidth < 600;
 
-    return <Tabs defaultValue="importexport" orientation={isSmallScreen ? "horizontal" : "vertical"} mih="500">
+    return <Tabs defaultValue={defaultTab} orientation={isSmallScreen ? "horizontal" : "vertical"} mih="500">
         <Tabs.List>
             <Tabs.Tab value="importexport">Import/export</Tabs.Tab>
             <Tabs.Tab value="managedata">Manage your data</Tabs.Tab>

@@ -17,6 +17,10 @@ Roadmap:
     - consider using immer or something idk or just reducers
     - not pass slide around just the name. that seems to be the react way
     - persistence of last used causes it to not save changes due to having multiple settings values floating around (switch to zustand?)
+    - have a popup on load when it detects there are new inbuilts that you click and can auto restore (just count number of inbuilts in default to curr)
+        - have a never show again option that can be undone in the general tab of advanced settings
+        - make import just take you to advanced settings restore inbuilts
+        - and have a little info thing there telling you to click if it detects
 - a few more inbuilt presets
 - add screenshot to readme
 - favicon
