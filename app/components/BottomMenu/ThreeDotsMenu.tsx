@@ -10,6 +10,7 @@ import { EditButton } from "~/components/overrides/EditButton";
 import type { TSlideSetName, TSlideSets } from "~/data/Settings";
 import slideSetManager, { NoSlideSets } from "~/services/slideSetManager";
 import { OurTooltip } from "../overrides/OurTooltip";
+import { isNotEmptyHTML, useForm } from "@mantine/form";
 
 export default function ThreeDotsMenu({slideSets, slideSet, setName}:
     {   slideSets: StateBundle<TSlideSets>,
@@ -126,19 +127,48 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
 }
 
 function RenamePopup({onSave}: {onSave: (a: string) => void}) {
-    const [name, setName] = useState("");
-    
-    return <Stack>
-        <TextInput value={name} onChange={v => setName(v.target.value)} placeholder="Enter new name..."/>
-        <ConfirmCancelButtons confirm={() => onSave(name)} confirmText="Save" cancelText="Cancel" />  
-    </Stack>
+    const form = useForm({
+        mode: "uncontrolled",
+        initialValues: {
+            name: ""
+        },
+
+        validate: {
+            name: (name: string) => (name.trim().length < 1 ? "Must enter a name" : null)
+        }
+    });
+
+    return <form onSubmit={form.onSubmit(values => {modals.closeAll(); onSave(values.name)})} >
+        <Stack>
+            <TextInput placeholder="Enter new name..."
+                key={form.key("name")}
+                autoComplete="false"
+                {...form.getInputProps("name")} />
+            <ConfirmCancelButtons closeOnConfirm={false} useSubmitButton={true} confirmText="Create" cancelText="Cancel" />  
+        </Stack>
+    </form>
 }
 
 function NewPresetPopup({onSave}: {onSave: (a: string) => void}) {
-    const [name, setName] = useState("");
+    const form = useForm({
+        mode: "uncontrolled",
+        initialValues: {
+            name: ""
+        },
+
+        validate: {
+            name: (name: string) => (name.trim().length < 1 ? "Must enter a name" : null)
+        }
+    });
     
-    return <Stack>
-        <TextInput value={name} onChange={v => setName(v.target.value)} placeholder="Enter preset name..."/>
-        <ConfirmCancelButtons confirm={() => onSave(name)} confirmText="Create" cancelText="Cancel" />  
-    </Stack>
+    
+    return <form onSubmit={form.onSubmit(values => {modals.closeAll(); onSave(values.name)})} >
+        <Stack>
+            <TextInput placeholder="Enter preset name..."
+                key={form.key("name")}
+                autoComplete="false"
+                {...form.getInputProps("name")} />
+            <ConfirmCancelButtons closeOnConfirm={false} useSubmitButton={true} confirmText="Create" cancelText="Cancel" />  
+        </Stack>
+    </form>
 }

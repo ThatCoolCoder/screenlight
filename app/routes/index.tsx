@@ -41,6 +41,7 @@ function MainApplication({settings}: {settings: StateBundle<Settings>}) {
         const nextSettings = {...settings.val, lastUsedSet: n};
         // settings.set(nextSettings);
         // save(nextSettings);
+        // this causes it to not save other stuff because we have 2 saves going at the same time and no centralized data
 
         _setSlideSetName(n);
         setSlideIdx(0);
