@@ -9,3 +9,7 @@ export function deleteIndex<T>(data: T[], idx: number) {
     clone.splice(idx, 1);
     return clone;
 }
+
+export function validateMultiple(conditions: Array<string | null>) {
+    return conditions.filter(x => x != null)[0] ?? null;
+}

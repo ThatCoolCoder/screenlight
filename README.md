@@ -16,8 +16,6 @@ Roadmap:
 - advanced options
     - ability to restore inbuilt presets
 - general
-    - overhaul all confirm dialogs etc
-    - validation stuffs (potentially make use of mantine form to avoid reinventing wheel)
     - consider using immer or something idk or just reducers
     - not pass slide around just the name. that seems to be the react way
     - persistence of last used causes it to not save changes due to having multiple settings values floating around (switch to zustand?)

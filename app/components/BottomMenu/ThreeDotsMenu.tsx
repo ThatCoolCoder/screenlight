@@ -1,16 +1,15 @@
 import { Menu, Stack, Text, TextInput } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { useState } from "react";
+import { useForm } from "@mantine/form";
 
 import { createBlankSlideSet, type SlideSet } from "~/data/Slides";
 import type { StateBundle } from "~/data/StateBundle";
+import { validateMultiple } from "~/services/misc";
+import type { TSlideSetName, TSlideSets } from "~/data/Settings";
+import slideSetManager, { NoSlideSets } from "~/services/slideSetManager";
 
 import ConfirmCancelButtons from "~/components/general/ConfirmCancelButtons";
 import { EditButton } from "~/components/overrides/EditButton";
-import type { TSlideSetName, TSlideSets } from "~/data/Settings";
-import slideSetManager, { NoSlideSets } from "~/services/slideSetManager";
-import { OurTooltip } from "../overrides/OurTooltip";
-import { isNotEmptyHTML, useForm } from "@mantine/form";
 
 export default function ThreeDotsMenu({slideSets, slideSet, setName}:
     {   slideSets: StateBundle<TSlideSets>,
@@ -34,7 +33,7 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
 
         modals.open({
             title: "Create new preset",
-            children: <NewPresetPopup onSave={apply} />
+            children: <ChooseNamePopup onSave={apply} slideSets={slideSets.val} />
         })
     }
 
@@ -50,7 +49,7 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
 
         modals.open({
             title: "Rename",
-            children: <RenamePopup onSave={apply} />
+            children: <ChooseNamePopup onSave={apply} slideSets={slideSets.val} />
         })
     }
 
@@ -126,7 +125,9 @@ export default function ThreeDotsMenu({slideSets, slideSet, setName}:
     </Menu>
 }
 
-function RenamePopup({onSave}: {onSave: (a: string) => void}) {
+function ChooseNamePopup({onSave, slideSets}: {onSave: (name: string) => void, slideSets: TSlideSets}) {
+    const otherNames = Object.keys(slideSets);
+
     const form = useForm({
         mode: "uncontrolled",
         initialValues: {
@@ -134,7 +135,10 @@ function RenamePopup({onSave}: {onSave: (a: string) => void}) {
         },
 
         validate: {
-            name: (name: string) => (name.trim().length < 1 ? "Must enter a name" : null)
+            name: (name: string) => validateMultiple([
+                name.trim().length < 1 ? "Must enter a name" : null,
+                otherNames.includes(name) ? "Name already in use" : null,
+            ])
         }
     });
 
@@ -142,31 +146,7 @@ function RenamePopup({onSave}: {onSave: (a: string) => void}) {
         <Stack>
             <TextInput placeholder="Enter new name..."
                 key={form.key("name")}
-                autoComplete="false"
-                {...form.getInputProps("name")} />
-            <ConfirmCancelButtons closeOnConfirm={false} useSubmitButton={true} confirmText="Create" cancelText="Cancel" />  
-        </Stack>
-    </form>
-}
-
-function NewPresetPopup({onSave}: {onSave: (a: string) => void}) {
-    const form = useForm({
-        mode: "uncontrolled",
-        initialValues: {
-            name: ""
-        },
-
-        validate: {
-            name: (name: string) => (name.trim().length < 1 ? "Must enter a name" : null)
-        }
-    });
-    
-    
-    return <form onSubmit={form.onSubmit(values => {modals.closeAll(); onSave(values.name)})} >
-        <Stack>
-            <TextInput placeholder="Enter preset name..."
-                key={form.key("name")}
-                autoComplete="false"
+                autoComplete="off"
                 {...form.getInputProps("name")} />
             <ConfirmCancelButtons closeOnConfirm={false} useSubmitButton={true} confirmText="Create" cancelText="Cancel" />  
         </Stack>
